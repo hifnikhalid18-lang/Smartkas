@@ -79,6 +79,12 @@ class TransactionProvider extends ChangeNotifier {
     StorageService.saveTransactions(_transactions);
     notifyListeners();
   }
+
+  void clearAllTransactions() {
+    _transactions.clear();
+    StorageService.saveTransactions(_transactions);
+    notifyListeners();
+  }
 }
 
 final transactionProvider = TransactionProvider();

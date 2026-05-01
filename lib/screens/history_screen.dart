@@ -5,8 +5,22 @@ import '../widgets/transaction_item.dart';
 import '../models/transaction.dart';
 import 'input_screen.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
+
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +39,13 @@ class HistoryScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () => _showResetDialog(context),
+            icon: const Icon(Icons.refresh, color: Colors.black),
+            tooltip: 'Reset Semua Data',
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
@@ -36,14 +57,21 @@ class HistoryScreen extends StatelessWidget {
       body: ListenableBuilder(
         listenable: transactionProvider,
         builder: (context, _) {
-          final transactions = transactionProvider.transactions;
+          final allTransactions = transactionProvider.transactions;
           final balance = transactionProvider.totalBalance;
           final income = transactionProvider.totalIncome;
           final expense = transactionProvider.totalExpense;
 
+          // Filter by search query
+          final filteredTransactions = allTransactions.where((tx) {
+            final query = _searchQuery.toLowerCase();
+            return tx.title.toLowerCase().contains(query) ||
+                   tx.amount.toString().contains(query);
+          }).toList();
+
           // Grouping logic
           final Map<String, List<TransactionModel>> groupedTransactions = {};
-          for (var tx in transactions) {
+          for (var tx in filteredTransactions) {
             final dateKey = DateFormat('dd MMMM yyyy').format(tx.date);
             if (!groupedTransactions.containsKey(dateKey)) {
               groupedTransactions[dateKey] = [];
@@ -56,7 +84,39 @@ class HistoryScreen extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Ringkasan Section (Fixed at top)
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) => setState(() => _searchQuery = value),
+                  decoration: InputDecoration(
+                    hintText: 'Cari keterangan atau nominal...',
+                    hintStyle: const TextStyle(color: Colors.black26, fontSize: 14),
+                    prefixIcon: const Icon(Icons.search, color: Colors.black),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                    enabledBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black, width: 1.5),
+                      borderRadius: BorderRadius.zero,
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black, width: 2),
+                      borderRadius: BorderRadius.zero,
+                    ),
+                    suffixIcon: _searchQuery.isNotEmpty 
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, color: Colors.black),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() => _searchQuery = '');
+                          },
+                        ) 
+                      : null,
+                  ),
+                ),
+              ),
+
+              // Ringkasan Section
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
@@ -80,36 +140,28 @@ class HistoryScreen extends StatelessWidget {
                 ),
               ),
               
-              // Garis pemisah antara ringkasan dan list
               Container(height: 1, color: Colors.black12),
               
-              // Daftar Terkelompok (Scrollable)
               Expanded(
-                child: transactions.isEmpty
+                child: filteredTransactions.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             Icon(
-                              Icons.history_toggle_off,
+                              _searchQuery.isEmpty ? Icons.history_toggle_off : Icons.search_off,
                               size: 80,
                               color: Colors.black26,
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text(
-                              'Belum ada riwayat transaksi',
-                              style: TextStyle(
+                              _searchQuery.isEmpty 
+                                ? 'Belum ada riwayat transaksi' 
+                                : 'Hasil pencarian tidak ditemukan',
+                              style: const TextStyle(
                                 color: Colors.black54,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Data transaksi akan muncul di sini',
-                              style: TextStyle(
-                                color: Colors.black26,
-                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -126,7 +178,6 @@ class HistoryScreen extends StatelessWidget {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Header Tanggal
                               Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 12.0),
                                 child: Row(
@@ -150,7 +201,6 @@ class HistoryScreen extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              // Daftar Item untuk tanggal tersebut
                               ...items.map((transaction) {
                                 return TransactionItem(
                                   title: transaction.title,
@@ -235,9 +285,60 @@ class HistoryScreen extends StatelessWidget {
               onPressed: () {
                 transactionProvider.deleteTransaction(transaction);
                 Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Transaksi berhasil dihapus'),
+                    backgroundColor: Colors.black,
+                  ),
+                );
               },
               child: const Text(
                 'Hapus',
+                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showResetDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: const RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black, width: 2),
+            borderRadius: BorderRadius.zero,
+          ),
+          title: const Text(
+            'Reset Semua Data?',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'Tindakan ini akan menghapus SELURUH transaksi dan mengembalikan saldo ke Rp 0. Apakah Anda yakin?',
+            style: TextStyle(color: Colors.black),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal', style: TextStyle(color: Colors.black54)),
+            ),
+            TextButton(
+              onPressed: () {
+                transactionProvider.clearAllTransactions();
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Seluruh data berhasil dihapus'),
+                    backgroundColor: Colors.black,
+                  ),
+                );
+              },
+              child: const Text(
+                'Reset',
                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               ),
             ),

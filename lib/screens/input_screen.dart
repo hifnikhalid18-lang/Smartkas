@@ -59,9 +59,12 @@ class _InputScreenState extends State<InputScreen> {
     final String cleanNominal = nominalText.replaceAll('.', '');
     final double? nominal = double.tryParse(cleanNominal);
     
-    if (nominal == null) {
+    if (nominal == null || nominal <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nominal harus berupa angka')),
+        const SnackBar(
+          content: Text('Nominal harus angka dan lebih besar dari 0'),
+          backgroundColor: Colors.black,
+        ),
       );
       return;
     }
@@ -78,6 +81,13 @@ class _InputScreenState extends State<InputScreen> {
         type: _selectedType,
       );
       transactionProvider.updateTransaction(updatedTransaction);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Transaksi berhasil diperbarui'),
+          backgroundColor: Colors.black,
+        ),
+      );
     } else {
       // Logic Tambah Baru
       final transaction = TransactionModel(
@@ -88,6 +98,13 @@ class _InputScreenState extends State<InputScreen> {
         type: _selectedType,
       );
       transactionProvider.addTransaction(transaction);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Transaksi berhasil ditambahkan'),
+          backgroundColor: Colors.black,
+        ),
+      );
     }
 
     Navigator.pop(context);
