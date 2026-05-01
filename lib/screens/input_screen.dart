@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
@@ -21,6 +22,9 @@ class _InputScreenState extends State<InputScreen> {
   late TextEditingController _nominalController;
   late TextEditingController _keteranganController;
   late TransactionType _selectedType;
+  
+  String? _nominalError;
+  String? _keteranganError;
 
   @override
   void initState() {
@@ -44,38 +48,54 @@ class _InputScreenState extends State<InputScreen> {
     super.dispose();
   }
 
-  void _simpan() {
+  bool _validate() {
+    bool isValid = true;
     final String nominalText = _nominalController.text.trim();
     final String keterangan = _keteranganController.text.trim();
 
-    if (nominalText.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nominal tidak boleh kosong')),
-      );
-      return;
-    }
+    setState(() {
+      // Validasi Nominal
+      if (nominalText.isEmpty) {
+        _nominalError = 'Nominal tidak boleh kosong';
+        isValid = false;
+      } else {
+        final double? nominal = double.tryParse(nominalText.replaceAll('.', ''));
+        if (nominal == null) {
+          _nominalError = 'Harus berupa angka';
+          isValid = false;
+        } else if (nominal <= 0) {
+          _nominalError = 'Nominal harus lebih besar dari 0';
+          isValid = false;
+        } else if (nominalText.length > 9) {
+          _nominalError = 'Maksimal 9 digit (999.999.999)';
+          isValid = false;
+        } else {
+          _nominalError = null;
+        }
+      }
 
-    // Membersihkan input dari titik (pemisah ribuan) agar bisa diparsing
-    final String cleanNominal = nominalText.replaceAll('.', '');
-    final double? nominal = double.tryParse(cleanNominal);
-    
-    if (nominal == null || nominal <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nominal harus angka dan lebih besar dari 0'),
-          backgroundColor: Colors.black,
-        ),
-      );
-      return;
-    }
+      // Validasi Keterangan
+      if (keterangan.isEmpty) {
+        _keteranganError = 'Keterangan tidak boleh kosong';
+        isValid = false;
+      } else {
+        _keteranganError = null;
+      }
+    });
 
-    final String finalKeterangan = keterangan.isEmpty ? 'Tanpa keterangan' : keterangan;
+    return isValid;
+  }
+
+  void _simpan() {
+    if (!_validate()) return;
+
+    final double nominal = double.parse(_nominalController.text.trim().replaceAll('.', ''));
+    final String keterangan = _keteranganController.text.trim();
 
     if (widget.transactionToEdit != null) {
-      // Logic Update
       final updatedTransaction = TransactionModel(
         id: widget.transactionToEdit!.id,
-        title: finalKeterangan,
+        title: keterangan,
         amount: nominal,
         date: widget.transactionToEdit!.date,
         type: _selectedType,
@@ -89,10 +109,9 @@ class _InputScreenState extends State<InputScreen> {
         ),
       );
     } else {
-      // Logic Tambah Baru
       final transaction = TransactionModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: finalKeterangan,
+        title: keterangan,
         amount: nominal,
         date: DateTime.now(),
         type: _selectedType,
@@ -121,7 +140,7 @@ class _InputScreenState extends State<InputScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
-          isEditing ? 'Edit ${widget.type}' : 'Input ${widget.type}',
+          isEditing ? 'Edit Transaksi' : 'Tambah ${widget.type}',
           style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -135,12 +154,13 @@ class _InputScreenState extends State<InputScreen> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // 3. Transaction Type Selector
               const Text(
                 'TIPE TRANSAKSI',
                 style: TextStyle(
@@ -153,54 +173,14 @@ class _InputScreenState extends State<InputScreen> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => setState(() => _selectedType = TransactionType.pemasukan),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        decoration: BoxDecoration(
-                          color: _selectedType == TransactionType.pemasukan ? Colors.black : Colors.white,
-                          border: Border.all(color: Colors.black, width: 2),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'PEMASUKAN',
-                            style: TextStyle(
-                              color: _selectedType == TransactionType.pemasukan ? Colors.white : Colors.black,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildTypeOption(TransactionType.pemasukan, 'PEMASUKAN'),
                   const SizedBox(width: 16),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => setState(() => _selectedType = TransactionType.pengeluaran),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        decoration: BoxDecoration(
-                          color: _selectedType == TransactionType.pengeluaran ? Colors.black : Colors.white,
-                          border: Border.all(color: Colors.black, width: 2),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'PENGELUARAN',
-                            style: TextStyle(
-                              color: _selectedType == TransactionType.pengeluaran ? Colors.white : Colors.black,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildTypeOption(TransactionType.pengeluaran, 'PENGELUARAN'),
                 ],
               ),
               const SizedBox(height: 32),
+
+              // 1. Input Nominal Field
               const Text(
                 'NOMINAL',
                 style: TextStyle(
@@ -214,24 +194,39 @@ class _InputScreenState extends State<InputScreen> {
               TextField(
                 controller: _nominalController,
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(9),
+                ],
                 style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   prefixText: 'Rp ',
-                  prefixStyle: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+                  prefixStyle: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
                   hintText: '0',
-                  hintStyle: TextStyle(color: Colors.black12),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  enabledBorder: OutlineInputBorder(
+                  hintStyle: const TextStyle(color: Colors.black12),
+                  errorText: _nominalError,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  enabledBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.black, width: 2),
                     borderRadius: BorderRadius.zero,
                   ),
-                  focusedBorder: OutlineInputBorder(
+                  focusedBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.black, width: 2.5),
+                    borderRadius: BorderRadius.zero,
+                  ),
+                  errorBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red, width: 2),
+                    borderRadius: BorderRadius.zero,
+                  ),
+                  focusedErrorBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red, width: 2.5),
                     borderRadius: BorderRadius.zero,
                   ),
                 ),
               ),
               const SizedBox(height: 32),
+
+              // 2. Input Keterangan Field
               const Text(
                 'KETERANGAN',
                 style: TextStyle(
@@ -244,23 +239,34 @@ class _InputScreenState extends State<InputScreen> {
               const SizedBox(height: 12),
               TextField(
                 controller: _keteranganController,
-                maxLines: 3,
+                maxLines: 2,
                 style: const TextStyle(color: Colors.black, fontSize: 16),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Contoh: Beli Makan Siang',
-                  hintStyle: TextStyle(color: Colors.black12),
-                  contentPadding: EdgeInsets.all(16),
-                  enabledBorder: OutlineInputBorder(
+                  hintStyle: const TextStyle(color: Colors.black12),
+                  errorText: _keteranganError,
+                  contentPadding: const EdgeInsets.all(16),
+                  enabledBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.black, width: 2),
                     borderRadius: BorderRadius.zero,
                   ),
-                  focusedBorder: OutlineInputBorder(
+                  focusedBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.black, width: 2.5),
+                    borderRadius: BorderRadius.zero,
+                  ),
+                  errorBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red, width: 2),
+                    borderRadius: BorderRadius.zero,
+                  ),
+                  focusedErrorBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red, width: 2.5),
                     borderRadius: BorderRadius.zero,
                   ),
                 ),
               ),
               const SizedBox(height: 48),
+
+              // Submit Button
               InkWell(
                 onTap: _simpan,
                 child: Container(
@@ -283,6 +289,32 @@ class _InputScreenState extends State<InputScreen> {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTypeOption(TransactionType type, String label) {
+    final isSelected = _selectedType == type;
+    return Expanded(
+      child: InkWell(
+        onTap: () => setState(() => _selectedType = type),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.black : Colors.white,
+            border: Border.all(color: Colors.black, width: 2),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.black,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ),
       ),
