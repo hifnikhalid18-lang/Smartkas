@@ -4,12 +4,14 @@ import '../services/storage_service.dart';
 
 class TransactionProvider extends ChangeNotifier {
   List<TransactionModel> _transactions = [];
+  bool _isLoading = true;
 
   TransactionProvider() {
     _initializeData();
   }
 
   List<TransactionModel> get transactions => List.unmodifiable(_transactions);
+  bool get isLoading => _isLoading;
 
   double get totalBalance {
     return _transactions.fold(0.0, (sum, transaction) {
@@ -56,6 +58,7 @@ class TransactionProvider extends ChangeNotifier {
       _transactions = loadedTransactions;
     }
     
+    _isLoading = false;
     notifyListeners();
   }
 

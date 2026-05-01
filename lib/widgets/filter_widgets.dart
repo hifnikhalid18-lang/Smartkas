@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../models/transaction.dart';
 import '../widgets/transaction_item.dart';
 import '../screens/input_screen.dart';
+import '../utils/currency_formatter.dart';
 
 class FilterChipWidget extends StatelessWidget {
   final String label;
@@ -52,47 +53,13 @@ class TransactionListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-
-    if (transactions.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(
-              Icons.receipt_long_outlined,
-              size: 80,
-              color: Colors.black26,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Belum ada transaksi',
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Klik tombol + untuk menambah',
-              style: TextStyle(
-                color: Colors.black26,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     return ListView.builder(
       itemCount: transactions.length,
       itemBuilder: (context, index) {
         final transaction = transactions[index];
         return TransactionItem(
           title: transaction.title,
-          amount: currencyFormat.format(transaction.amount),
+          amount: CurrencyFormatterHelper.formatRupiah(transaction.amount),
           date: DateFormat('dd MMM yyyy').format(transaction.date),
           onDelete: () => onDelete(transaction),
           onTap: () {

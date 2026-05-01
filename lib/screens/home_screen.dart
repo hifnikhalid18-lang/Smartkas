@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../widgets/summary_cards.dart';
 import '../widgets/menu_card.dart';
 import '../widgets/filter_widgets.dart';
+import '../widgets/status_widgets.dart';
 import 'input_screen.dart';
 import 'history_screen.dart';
 import '../providers/transaction_provider.dart';
 import '../models/transaction.dart';
+import '../utils/currency_formatter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,8 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -50,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
           final income = transactionProvider.totalIncome;
           final expense = transactionProvider.totalExpense;
           
-          // Filter logic
           final allTransactions = transactionProvider.transactions;
           final filteredTransactions = allTransactions.where((tx) {
             if (_selectedFilter == 'Semua') return true;
@@ -64,13 +62,13 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SaldoSummaryCard(balance: currencyFormat.format(balance)),
+                SaldoSummaryCard(balance: CurrencyFormatterHelper.formatRupiah(balance)),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    IncomeSummaryCard(amount: currencyFormat.format(income)),
+                    IncomeSummaryCard(amount: CurrencyFormatterHelper.formatRupiah(income)),
                     const SizedBox(width: 12),
-                    ExpenseSummaryCard(amount: currencyFormat.format(expense)),
+                    ExpenseSummaryCard(amount: CurrencyFormatterHelper.formatRupiah(expense)),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -105,7 +103,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 32),
                 
-                // Filter UI
                 Row(
                   children: [
                     const Text(
@@ -160,11 +157,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Daftar Transaksi Terfilter
                 Expanded(
-                  child: TransactionListView(
-                    transactions: filteredTransactions,
-                    onDelete: (transaction) => _showDeleteDialog(context, transaction),
+                  child: SafeDataWrapper(
+                    isLoading: transactionProvider.isLoading,
+                    isEmpty: filteredTransactions.isEmpty,
+                    emptyMessage: 'Belum ada transaksi',
+                    emptyIcon: Icons.receipt_long_outlined,
+                    child: TransactionListView(
+                      transactions: filteredTransactions,
+                      onDelete: (transaction) => _showDeleteDialog(context, transaction),
+                    ),
                   ),
                 ),
               ],
