@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/saldo_card.dart';
 import '../widgets/menu_card.dart';
 import '../widgets/transaction_item.dart';
+import 'input_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -40,10 +41,26 @@ class HomeScreen extends StatelessWidget {
             
             // Menu Cards
             Row(
-              children: const [
-                MenuCard(title: '[ + Pemasukan ]'),
-                SizedBox(width: 16),
-                MenuCard(title: '[ - Pengeluaran ]'),
+              children: [
+                MenuCard(
+                  title: '[ + Pemasukan ]',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const InputScreen(title: 'Pemasukan')),
+                    );
+                  },
+                ),
+                const SizedBox(width: 16),
+                MenuCard(
+                  title: '[ - Pengeluaran ]',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const InputScreen(title: 'Pengeluaran')),
+                    );
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 32),
@@ -73,7 +90,12 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const InputScreen(title: 'Tambah Transaksi')),
+          );
+        },
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
