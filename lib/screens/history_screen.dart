@@ -41,6 +41,18 @@ class HistoryScreen extends StatelessWidget {
           final income = transactionProvider.totalIncome;
           final expense = transactionProvider.totalExpense;
 
+          // Grouping logic
+          final Map<String, List<TransactionModel>> groupedTransactions = {};
+          for (var tx in transactions) {
+            final dateKey = DateFormat('dd MMMM yyyy').format(tx.date);
+            if (!groupedTransactions.containsKey(dateKey)) {
+              groupedTransactions[dateKey] = [];
+            }
+            groupedTransactions[dateKey]!.add(tx);
+          }
+
+          final dateKeys = groupedTransactions.keys.toList();
+
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -63,40 +75,63 @@ class HistoryScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Daftar Transaksi',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
+                
+                // Daftar Terkelompok
                 Expanded(
                   child: transactions.isEmpty
                       ? const Center(
                           child: Text('Belum ada transaksi'),
                         )
                       : ListView.builder(
-                          itemCount: transactions.length,
+                          itemCount: dateKeys.length,
                           itemBuilder: (context, index) {
-                            final transaction = transactions[index];
-                            return TransactionItem(
-                              title: transaction.title,
-                              amount: currencyFormat.format(transaction.amount),
-                              date: DateFormat('dd MMM yyyy').format(transaction.date),
-                              onDelete: () => _showDeleteDialog(context, transaction),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => InputScreen(
-                                      type: transaction.type == TransactionType.pemasukan ? 'Pemasukan' : 'Pengeluaran',
-                                      transactionToEdit: transaction,
+                            final dateKey = dateKeys[index];
+                            final items = groupedTransactions[dateKey]!;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Header Tanggal
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black,
+                                    ),
+                                    child: Text(
+                                      dateKey,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
                                     ),
                                   ),
-                                );
-                              },
+                                ),
+                                const SizedBox(height: 8),
+                                // Daftar Item untuk tanggal tersebut
+                                ...items.map((transaction) {
+                                  return TransactionItem(
+                                    title: transaction.title,
+                                    amount: currencyFormat.format(transaction.amount),
+                                    date: DateFormat('HH:mm').format(transaction.date), // Tampilkan jam saja karena tanggal sudah di header
+                                    onDelete: () => _showDeleteDialog(context, transaction),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => InputScreen(
+                                            type: transaction.type == TransactionType.pemasukan ? 'Pemasukan' : 'Pengeluaran',
+                                            transactionToEdit: transaction,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }).toList(),
+                                const SizedBox(height: 16),
+                              ],
                             );
                           },
                         ),
