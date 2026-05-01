@@ -22,7 +22,23 @@ class TransactionProvider extends ChangeNotifier {
   }
 
   Future<void> _initializeData() async {
-    _transactions = await StorageService.loadTransactions();
+    final loadedTransactions = await StorageService.loadTransactions();
+    
+    if (loadedTransactions.isEmpty) {
+      // Data dummy awal agar aplikasi tidak terlihat kosong saat pertama kali dibuka
+      _transactions = [
+        TransactionModel(
+          title: 'Saldo Awal',
+          amount: 50000,
+          date: DateTime.now(),
+          type: TransactionType.pemasukan,
+        ),
+      ];
+      await StorageService.saveTransactions(_transactions);
+    } else {
+      _transactions = loadedTransactions;
+    }
+    
     notifyListeners();
   }
 
