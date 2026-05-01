@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
+import '../utils/currency_formatter.dart';
 
 class InputScreen extends StatefulWidget {
   final String type;
@@ -30,7 +30,9 @@ class _InputScreenState extends State<InputScreen> {
   void initState() {
     super.initState();
     _nominalController = TextEditingController(
-      text: widget.transactionToEdit?.amount.toStringAsFixed(0) ?? '',
+      text: widget.transactionToEdit != null 
+          ? CurrencyFormatterHelper.formatRupiah(widget.transactionToEdit!.amount)
+          : '',
     );
     _keteranganController = TextEditingController(
       text: widget.transactionToEdit?.title ?? '',
@@ -59,15 +61,12 @@ class _InputScreenState extends State<InputScreen> {
         _nominalError = 'Nominal tidak boleh kosong';
         isValid = false;
       } else {
-        final double? nominal = double.tryParse(nominalText.replaceAll('.', ''));
-        if (nominal == null) {
-          _nominalError = 'Harus berupa angka';
-          isValid = false;
-        } else if (nominal <= 0) {
+        final double nominal = CurrencyFormatterHelper.parseRupiah(nominalText);
+        if (nominal <= 0) {
           _nominalError = 'Nominal harus lebih besar dari 0';
           isValid = false;
-        } else if (nominalText.length > 9) {
-          _nominalError = 'Maksimal 9 digit (999.999.999)';
+        } else if (nominal > 999999999) {
+          _nominalError = 'Maksimal Rp 999.999.999';
           isValid = false;
         } else {
           _nominalError = null;
@@ -89,7 +88,7 @@ class _InputScreenState extends State<InputScreen> {
   void _simpan() {
     if (!_validate()) return;
 
-    final double nominal = double.parse(_nominalController.text.trim().replaceAll('.', ''));
+    final double nominal = CurrencyFormatterHelper.parseRupiah(_nominalController.text.trim());
     final String keterangan = _keteranganController.text.trim();
 
     if (widget.transactionToEdit != null) {
@@ -196,13 +195,11 @@ class _InputScreenState extends State<InputScreen> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(9),
+                  RupiahInputFormatter(),
                 ],
                 style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
                 decoration: InputDecoration(
-                  prefixText: 'Rp ',
-                  prefixStyle: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
-                  hintText: '0',
+                  hintText: 'Rp 0',
                   hintStyle: const TextStyle(color: Colors.black12),
                   errorText: _nominalError,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
