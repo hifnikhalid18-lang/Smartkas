@@ -47,6 +47,12 @@ class TransactionProvider extends ChangeNotifier {
     StorageService.saveTransactions(_transactions);
     notifyListeners();
   }
+
+  void deleteTransaction(TransactionModel transaction) {
+    _transactions.remove(transaction);
+    StorageService.saveTransactions(_transactions);
+    notifyListeners();
+  }
 }
 
 // Global instance untuk mempermudah akses state di seluruh aplikasi

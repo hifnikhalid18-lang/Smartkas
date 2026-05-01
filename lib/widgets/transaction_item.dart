@@ -4,12 +4,14 @@ class TransactionItem extends StatelessWidget {
   final String title;
   final String amount;
   final String date;
+  final VoidCallback onDelete;
 
   const TransactionItem({
     super.key,
     required this.title,
     required this.amount,
     required this.date,
+    required this.onDelete,
   });
 
   @override
@@ -25,13 +27,24 @@ class TransactionItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              IconButton(
+                onPressed: onDelete,
+                icon: const Icon(Icons.delete_outline, color: Colors.black, size: 20),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Row(

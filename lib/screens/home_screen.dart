@@ -101,11 +101,12 @@ class HomeScreen extends StatelessWidget {
                       : ListView.builder(
                           itemCount: transactions.length,
                           itemBuilder: (context, index) {
-                            final tx = transactions[index];
+                            final transaction = transactions[index];
                             return TransactionItem(
-                              title: tx.title,
-                              amount: currencyFormat.format(tx.amount),
-                              date: DateFormat('dd MMM yyyy').format(tx.date),
+                              title: transaction.title,
+                              amount: currencyFormat.format(transaction.amount),
+                              date: DateFormat('dd MMM yyyy').format(transaction.date),
+                              onDelete: () => _showDeleteDialog(context, transaction),
                             );
                           },
                         ),
@@ -133,6 +134,45 @@ class HomeScreen extends StatelessWidget {
         ),
         child: const Icon(Icons.add, size: 32),
       ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, TransactionModel transaction) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: const RoundedRectangleBorder(
+            side: BorderSide(color: Colors.black, width: 2),
+            borderRadius: BorderRadius.zero,
+          ),
+          title: const Text(
+            'Hapus Transaksi?',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'Data yang dihapus tidak bisa dikembalikan.',
+            style: TextStyle(color: Colors.black),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal', style: TextStyle(color: Colors.black54)),
+            ),
+            TextButton(
+              onPressed: () {
+                transactionProvider.deleteTransaction(transaction);
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Hapus',
+                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
