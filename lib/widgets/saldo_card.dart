@@ -9,20 +9,21 @@ class SaldoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: Colors.black, width: 2),
-        borderRadius: BorderRadius.circular(0), // Gaya wireframe kaku
+        borderRadius: BorderRadius.circular(0),
       ),
       child: Column(
         children: [
           const Text(
-            '[ Saldo ]',
+            'TOTAL SALDO',
             style: TextStyle(
-              color: Colors.black,
-              fontSize: 16,
+              color: Colors.black54,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
+              letterSpacing: 1.5,
             ),
           ),
           const SizedBox(height: 12),
@@ -30,7 +31,7 @@ class SaldoCard extends StatelessWidget {
             balance,
             style: const TextStyle(
               color: Colors.black,
-              fontSize: 32,
+              fontSize: 36,
               fontWeight: FontWeight.bold,
             ),
           ),

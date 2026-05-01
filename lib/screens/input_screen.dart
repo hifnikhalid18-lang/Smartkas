@@ -122,30 +122,32 @@ class _InputScreenState extends State<InputScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Tipe Transaksi:',
+                'TIPE TRANSAKSI',
                 style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
+                  color: Colors.black54,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
                     child: InkWell(
                       onTap: () => setState(() => _selectedType = TransactionType.pemasukan),
                       child: Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           color: _selectedType == TransactionType.pemasukan ? Colors.black : Colors.white,
                           border: Border.all(color: Colors.black, width: 2),
                         ),
                         child: Center(
                           child: Text(
-                            'Pemasukan',
+                            'PEMASUKAN',
                             style: TextStyle(
                               color: _selectedType == TransactionType.pemasukan ? Colors.white : Colors.black,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -153,21 +155,22 @@ class _InputScreenState extends State<InputScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: InkWell(
                       onTap: () => setState(() => _selectedType = TransactionType.pengeluaran),
                       child: Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           color: _selectedType == TransactionType.pengeluaran ? Colors.black : Colors.white,
                           border: Border.all(color: Colors.black, width: 2),
                         ),
                         child: Center(
                           child: Text(
-                            'Pengeluaran',
+                            'PENGELUARAN',
                             style: TextStyle(
                               color: _selectedType == TransactionType.pengeluaran ? Colors.white : Colors.black,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -177,23 +180,27 @@ class _InputScreenState extends State<InputScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               const Text(
-                'Nominal:',
+                'NOMINAL',
                 style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
+                  color: Colors.black54,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _nominalController,
                 keyboardType: TextInputType.number,
-                style: const TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
                 decoration: const InputDecoration(
-                  hintText: 'Masukkan nominal',
-                  hintStyle: TextStyle(color: Colors.black26),
+                  prefixText: 'Rp ',
+                  prefixStyle: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+                  hintText: '0',
+                  hintStyle: TextStyle(color: Colors.black12),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.black, width: 2),
                     borderRadius: BorderRadius.zero,
@@ -204,23 +211,25 @@ class _InputScreenState extends State<InputScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               const Text(
-                'Keterangan:',
+                'KETERANGAN',
                 style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
+                  color: Colors.black54,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _keteranganController,
                 maxLines: 3,
-                style: const TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.black, fontSize: 16),
                 decoration: const InputDecoration(
-                  hintText: 'Contoh: Beli Makan',
-                  hintStyle: TextStyle(color: Colors.black26),
+                  hintText: 'Contoh: Beli Makan Siang',
+                  hintStyle: TextStyle(color: Colors.black12),
+                  contentPadding: EdgeInsets.all(16),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.black, width: 2),
                     borderRadius: BorderRadius.zero,
@@ -231,22 +240,23 @@ class _InputScreenState extends State<InputScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 48),
               InkWell(
                 onTap: _simpan,
                 child: Container(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.black, width: 2.5),
+                    color: Colors.black,
+                    border: Border.all(color: Colors.black, width: 2),
                   ),
                   child: Center(
                     child: Text(
-                      isEditing ? 'Update' : 'Simpan',
+                      isEditing ? 'UPDATE DATA' : 'SIMPAN TRANSAKSI',
                       style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
+                        color: Colors.white,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
                       ),
                     ),
                   ),
