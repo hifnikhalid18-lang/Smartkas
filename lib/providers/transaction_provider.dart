@@ -11,7 +11,6 @@ class TransactionProvider extends ChangeNotifier {
 
   List<TransactionModel> get transactions => List.unmodifiable(_transactions);
 
-  // Menghitung saldo total menggunakan metode fold untuk efisiensi
   double get totalBalance {
     return _transactions.fold(0.0, (sum, transaction) {
       if (transaction.type == TransactionType.pemasukan) {
@@ -25,9 +24,9 @@ class TransactionProvider extends ChangeNotifier {
     final loadedTransactions = await StorageService.loadTransactions();
     
     if (loadedTransactions.isEmpty) {
-      // Data dummy awal agar aplikasi tidak terlihat kosong saat pertama kali dibuka
       _transactions = [
         TransactionModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
           title: 'Saldo Awal',
           amount: 50000,
           date: DateTime.now(),
@@ -48,12 +47,20 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateTransaction(TransactionModel updatedTransaction) {
+    final index = _transactions.indexWhere((tx) => tx.id == updatedTransaction.id);
+    if (index != -1) {
+      _transactions[index] = updatedTransaction;
+      StorageService.saveTransactions(_transactions);
+      notifyListeners();
+    }
+  }
+
   void deleteTransaction(TransactionModel transaction) {
-    _transactions.remove(transaction);
+    _transactions.removeWhere((tx) => tx.id == transaction.id);
     StorageService.saveTransactions(_transactions);
     notifyListeners();
   }
 }
 
-// Global instance untuk mempermudah akses state di seluruh aplikasi
 final transactionProvider = TransactionProvider();

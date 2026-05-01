@@ -107,6 +107,17 @@ class HomeScreen extends StatelessWidget {
                               amount: currencyFormat.format(transaction.amount),
                               date: DateFormat('dd MMM yyyy').format(transaction.date),
                               onDelete: () => _showDeleteDialog(context, transaction),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => InputScreen(
+                                      type: transaction.type == TransactionType.pemasukan ? 'Pemasukan' : 'Pengeluaran',
+                                      transactionToEdit: transaction,
+                                    ),
+                                  ),
+                                );
+                              },
                             );
                           },
                         ),
