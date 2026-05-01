@@ -121,12 +121,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       constraints: const BoxConstraints(),
                     ),
                     const Spacer(),
-                    _buildFilterChip('Semua'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Pemasukan'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Pengeluaran'),
                   ],
+                ),
+                const SizedBox(height: 12),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildFilterChip('Semua'),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Pemasukan'),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Pengeluaran'),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 
