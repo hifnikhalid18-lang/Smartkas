@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../widgets/saldo_card.dart';
+import '../widgets/menu_card.dart';
+import '../widgets/transaction_item.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -31,42 +34,17 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Saldo Total Card
-            Container(
-              padding: const EdgeInsets.all(24.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.black, width: 2),
-              ),
-              child: const Center(
-                child: Text(
-                  'Total Saldo: Rp 0',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+            // Saldo Total Card Component
+            const SaldoCard(amount: 'Rp 0'),
             const SizedBox(height: 24),
             
-            // Card Menu Placeholder
-            Container(
-              padding: const EdgeInsets.all(24.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.black, width: 2),
-              ),
-              child: const Center(
-                child: Text(
-                  '[ Placeholder Card Menu ]',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
+            // Menu Cards
+            Row(
+              children: const [
+                MenuCard(title: '[ + Pemasukan ]'),
+                SizedBox(width: 16),
+                MenuCard(title: '[ - Pengeluaran ]'),
+              ],
             ),
             const SizedBox(height: 32),
             
@@ -80,15 +58,15 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const Expanded(
-              child: Center(
-                child: Text(
-                  'Belum ada transaksi',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
+            Expanded(
+              child: ListView(
+                children: const [
+                  TransactionItem(
+                    title: 'Uang Masuk',
+                    amount: 'Rp 10.000',
+                    date: '01 Mei 2026',
                   ),
-                ),
+                ],
               ),
             ),
           ],
