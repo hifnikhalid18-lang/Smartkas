@@ -36,7 +36,7 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Saldo Total Card Component
-            const SaldoCard(amount: 'Rp 0'),
+            const SaldoCard(amount: 'Rp 5.000'),
             const SizedBox(height: 24),
             
             // Menu Cards
@@ -79,8 +79,13 @@ class HomeScreen extends StatelessWidget {
               child: ListView(
                 children: const [
                   TransactionItem(
-                    title: 'Uang Masuk',
+                    title: 'Pemasukan',
                     amount: 'Rp 10.000',
+                    date: '01 Mei 2026',
+                  ),
+                  TransactionItem(
+                    title: 'Pengeluaran',
+                    amount: 'Rp 5.000',
                     date: '01 Mei 2026',
                   ),
                 ],
