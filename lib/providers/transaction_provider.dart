@@ -1,23 +1,14 @@
-// File: lib/providers/transaction_provider.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaction.dart';
 
 class TransactionProvider extends ChangeNotifier {
-  // Inisialisasi dengan data dummy sesuai permintaan
-  final List<TransactionModel> _transactions = [
-    TransactionModel(
-      title: 'Gaji Bulanan',
-      amount: 10000,
-      date: DateTime.now(),
-      type: TransactionType.pemasukan,
-    ),
-    TransactionModel(
-      title: 'Beli Kopi',
-      amount: 5000,
-      date: DateTime.now(),
-      type: TransactionType.pengeluaran,
-    ),
-  ];
+  List<TransactionModel> _transactions = [];
+
+  TransactionProvider() {
+    _loadData();
+  }
 
   List<TransactionModel> get transactions => List.unmodifiable(_transactions);
 
@@ -33,8 +24,33 @@ class TransactionProvider extends ChangeNotifier {
     return balance;
   }
 
+  Future<void> _loadData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? data = prefs.getString('transactions');
+      if (data != null) {
+        final List<dynamic> jsonList = jsonDecode(data);
+        _transactions = jsonList.map((j) => TransactionModel.fromJson(j)).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error loading data: $e');
+    }
+  }
+
+  Future<void> _saveData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String data = jsonEncode(_transactions.map((t) => t.toJson()).toList());
+      await prefs.setString('transactions', data);
+    } catch (e) {
+      debugPrint('Error saving data: $e');
+    }
+  }
+
   void addTransaction(TransactionModel transaction) {
     _transactions.insert(0, transaction);
+    _saveData();
     notifyListeners();
   }
 }

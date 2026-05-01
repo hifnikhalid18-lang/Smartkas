@@ -12,4 +12,22 @@ class TransactionModel {
     required this.date,
     required this.type,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'amount': amount,
+      'date': date.toIso8601String(),
+      'type': type.index,
+    };
+  }
+
+  factory TransactionModel.fromJson(Map<String, dynamic> json) {
+    return TransactionModel(
+      title: json['title'],
+      amount: json['amount'],
+      date: DateTime.parse(json['date']),
+      type: TransactionType.values[json['type']],
+    );
+  }
 }
