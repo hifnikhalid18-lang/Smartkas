@@ -3,8 +3,10 @@ import '../widgets/summary_cards.dart';
 import '../widgets/menu_card.dart';
 import '../widgets/filter_widgets.dart';
 import '../widgets/status_widgets.dart';
+import '../providers/settings_provider.dart';
 import 'input_screen.dart';
 import 'history_screen.dart';
+import 'settings_screen.dart';
 import '../providers/transaction_provider.dart';
 import '../models/transaction.dart';
 import '../utils/currency_formatter.dart';
@@ -20,6 +22,12 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedFilter = 'Semua';
 
   @override
+  void initState() {
+    super.initState();
+    _selectedFilter = settingsProvider.defaultFilter;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -27,13 +35,29 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
-        title: const Text(
-          'Beranda',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
+        title: ListenableBuilder(
+          listenable: settingsProvider,
+          builder: (context, _) => Text(
+            settingsProvider.username,
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.settings, color: Colors.black),
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
