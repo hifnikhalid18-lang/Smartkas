@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../widgets/summary_cards.dart';
 import '../widgets/menu_card.dart';
-import '../widgets/transaction_item.dart';
+import '../widgets/filter_widgets.dart';
 import 'input_screen.dart';
 import 'history_screen.dart';
 import '../providers/transaction_provider.dart';
@@ -138,71 +138,34 @@ class _HomeScreenState extends State<HomeScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildFilterChip('Semua'),
+                      FilterChipWidget(
+                        label: 'Semua',
+                        isSelected: _selectedFilter == 'Semua',
+                        onTap: () => setState(() => _selectedFilter = 'Semua'),
+                      ),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Pemasukan'),
+                      FilterChipWidget(
+                        label: 'Pemasukan',
+                        isSelected: _selectedFilter == 'Pemasukan',
+                        onTap: () => setState(() => _selectedFilter = 'Pemasukan'),
+                      ),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Pengeluaran'),
+                      FilterChipWidget(
+                        label: 'Pengeluaran',
+                        isSelected: _selectedFilter == 'Pengeluaran',
+                        onTap: () => setState(() => _selectedFilter = 'Pengeluaran'),
+                      ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
                 
-                // Daftar Transaksi Dinamis & Terfilter
+                // Daftar Transaksi Terfilter
                 Expanded(
-                  child: filteredTransactions.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(
-                                Icons.receipt_long_outlined,
-                                size: 80,
-                                color: Colors.black26,
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                'Belum ada transaksi',
-                                style: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Klik tombol + untuk menambah',
-                                style: TextStyle(
-                                  color: Colors.black26,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: filteredTransactions.length,
-                          itemBuilder: (context, index) {
-                            final transaction = filteredTransactions[index];
-                            return TransactionItem(
-                              title: transaction.title,
-                              amount: currencyFormat.format(transaction.amount),
-                              date: DateFormat('dd MMM yyyy').format(transaction.date),
-                              onDelete: () => _showDeleteDialog(context, transaction),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => InputScreen(
-                                      type: transaction.type == TransactionType.pemasukan ? 'Pemasukan' : 'Pengeluaran',
-                                      transactionToEdit: transaction,
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
+                  child: TransactionListView(
+                    transactions: filteredTransactions,
+                    onDelete: (transaction) => _showDeleteDialog(context, transaction),
+                  ),
                 ),
               ],
             ),
@@ -226,28 +189,6 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.add, size: 32),
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label) {
-    final isSelected = _selectedFilter == label;
-    return InkWell(
-      onTap: () => setState(() => _selectedFilter = label),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.black : Colors.white,
-          border: Border.all(color: Colors.black, width: 1.5),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
       ),
     );
   }
@@ -279,6 +220,12 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 transactionProvider.deleteTransaction(transaction);
                 Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Transaksi berhasil dihapus'),
+                    backgroundColor: Colors.black,
+                  ),
+                );
               },
               child: const Text(
                 'Hapus',
