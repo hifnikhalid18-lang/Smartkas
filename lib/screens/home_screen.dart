@@ -5,9 +5,17 @@ import '../widgets/menu_card.dart';
 import '../widgets/transaction_item.dart';
 import 'input_screen.dart';
 import '../providers/transaction_provider.dart';
+import '../models/transaction.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _selectedFilter = 'Semua';
 
   @override
   Widget build(BuildContext context) {
@@ -37,18 +45,24 @@ class HomeScreen extends StatelessWidget {
       body: ListenableBuilder(
         listenable: transactionProvider,
         builder: (context, _) {
-          final transactions = transactionProvider.transactions;
           final balance = transactionProvider.totalBalance;
+          
+          // Filter logic
+          final allTransactions = transactionProvider.transactions;
+          final filteredTransactions = allTransactions.where((tx) {
+            if (_selectedFilter == 'Semua') return true;
+            if (_selectedFilter == 'Pemasukan') return tx.type == TransactionType.pemasukan;
+            if (_selectedFilter == 'Pengeluaran') return tx.type == TransactionType.pengeluaran;
+            return true;
+          }).toList();
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Komponen Saldo Otomatis
                 SaldoCard(balance: currencyFormat.format(balance)),
                 const SizedBox(height: 16),
-                // Baris Menu
                 Row(
                   children: [
                     MenuCard(
@@ -79,29 +93,41 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 32),
-                // Judul Riwayat
-                const Text(
-                  'Riwayat Transaksi',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                
+                // Filter UI
+                Row(
+                  children: [
+                    const Text(
+                      'Riwayat',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    _buildFilterChip('Semua'),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Pemasukan'),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Pengeluaran'),
+                  ],
                 ),
                 const SizedBox(height: 16),
-                // Daftar Transaksi Dinamis
+                
+                // Daftar Transaksi Dinamis & Terfilter
                 Expanded(
-                  child: transactions.isEmpty
+                  child: filteredTransactions.isEmpty
                       ? const Center(
                           child: Text(
-                            'Belum ada transaksi',
+                            'Tidak ada transaksi',
                             style: TextStyle(color: Colors.black54, fontSize: 16),
                           ),
                         )
                       : ListView.builder(
-                          itemCount: transactions.length,
+                          itemCount: filteredTransactions.length,
                           itemBuilder: (context, index) {
-                            final transaction = transactions[index];
+                            final transaction = filteredTransactions[index];
                             return TransactionItem(
                               title: transaction.title,
                               amount: currencyFormat.format(transaction.amount),
@@ -144,6 +170,28 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.add, size: 32),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label) {
+    final isSelected = _selectedFilter == label;
+    return InkWell(
+      onTap: () => setState(() => _selectedFilter = label),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.black : Colors.white,
+          border: Border.all(color: Colors.black, width: 1.5),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }
