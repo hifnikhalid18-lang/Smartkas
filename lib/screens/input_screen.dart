@@ -25,16 +25,18 @@ class _InputScreenState extends State<InputScreen> {
   }
 
   void _simpan() {
-    final String nominalText = _nominalController.text;
-    final String keterangan = _keteranganController.text;
+    final String nominalText = _nominalController.text.trim();
+    final String keterangan = _keteranganController.text.trim();
 
-    if (nominalText.isEmpty || keterangan.isEmpty) {
+    // Validasi Nominal tidak boleh kosong
+    if (nominalText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Harap isi semua bidang')),
+        const SnackBar(content: Text('Nominal tidak boleh kosong')),
       );
       return;
     }
 
+    // Validasi Nominal harus angka
     final double? nominal = double.tryParse(nominalText);
     if (nominal == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -43,8 +45,11 @@ class _InputScreenState extends State<InputScreen> {
       return;
     }
 
+    // Keterangan minimal 1 karakter (opsional tapi diset default jika kosong)
+    final String finalKeterangan = keterangan.isEmpty ? 'Tanpa keterangan' : keterangan;
+
     final transaction = TransactionModel(
-      title: keterangan,
+      title: finalKeterangan,
       amount: nominal,
       date: DateTime.now(),
       type: widget.type == 'Pemasukan'
