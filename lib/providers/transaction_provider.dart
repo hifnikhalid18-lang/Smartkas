@@ -1,58 +1,37 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaction.dart';
+import '../services/storage_service.dart';
 
 class TransactionProvider extends ChangeNotifier {
   List<TransactionModel> _transactions = [];
 
   TransactionProvider() {
-    _loadData();
+    _initializeData();
   }
 
   List<TransactionModel> get transactions => List.unmodifiable(_transactions);
 
+  // Menghitung saldo total menggunakan metode fold untuk efisiensi
   double get totalBalance {
-    double balance = 0;
-    for (var tx in _transactions) {
-      if (tx.type == TransactionType.pemasukan) {
-        balance += tx.amount;
-      } else {
-        balance -= tx.amount;
+    return _transactions.fold(0.0, (sum, transaction) {
+      if (transaction.type == TransactionType.pemasukan) {
+        return sum + transaction.amount;
       }
-    }
-    return balance;
+      return sum - transaction.amount;
+    });
   }
 
-  Future<void> _loadData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final String? data = prefs.getString('transactions');
-      if (data != null) {
-        final List<dynamic> jsonList = jsonDecode(data);
-        _transactions = jsonList.map((j) => TransactionModel.fromJson(j)).toList();
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint('Error loading data: $e');
-    }
-  }
-
-  Future<void> _saveData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final String data = jsonEncode(_transactions.map((t) => t.toJson()).toList());
-      await prefs.setString('transactions', data);
-    } catch (e) {
-      debugPrint('Error saving data: $e');
-    }
+  Future<void> _initializeData() async {
+    _transactions = await StorageService.loadTransactions();
+    notifyListeners();
   }
 
   void addTransaction(TransactionModel transaction) {
     _transactions.insert(0, transaction);
-    _saveData();
+    StorageService.saveTransactions(_transactions);
     notifyListeners();
   }
 }
 
+// Global instance untuk mempermudah akses state di seluruh aplikasi
 final transactionProvider = TransactionProvider();
