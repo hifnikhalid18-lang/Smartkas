@@ -5,6 +5,7 @@ import '../widgets/transaction_item.dart';
 import '../widgets/status_widgets.dart';
 import '../models/transaction.dart';
 import '../utils/currency_formatter.dart';
+import '../services/backup_export_service.dart';
 import 'input_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -40,6 +41,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            onPressed: () => _showDataManagement(context),
+            icon: const Icon(Icons.settings, color: Colors.black),
+            tooltip: 'Manajemen Data',
+          ),
           IconButton(
             onPressed: () => _showResetDialog(context),
             icon: const Icon(Icons.refresh, color: Colors.black),
@@ -237,6 +243,82 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showDataManagement(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        side: BorderSide(color: Colors.black, width: 2),
+        borderRadius: BorderRadius.zero,
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'MANAJEMEN DATA',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1.2),
+              ),
+              const SizedBox(height: 24),
+              _buildDataButton(
+                context, 
+                'Backup Data (JSON)', 
+                Icons.backup_outlined, 
+                () => BackupExportService.backupData(transactionProvider.transactions)
+              ),
+              const SizedBox(height: 12),
+              _buildDataButton(
+                context, 
+                'Restore Data (JSON)', 
+                Icons.restore_outlined, 
+                () async {
+                  bool success = await BackupExportService.restoreData();
+                  if (success && mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Data berhasil direstore!'), backgroundColor: Colors.black),
+                    );
+                  }
+                }
+              ),
+              const SizedBox(height: 12),
+              _buildDataButton(
+                context, 
+                'Ekspor Data (CSV)', 
+                Icons.description_outlined, 
+                () => BackupExportService.exportToCSV(transactionProvider.transactions)
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDataButton(BuildContext context, String label, IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: 2),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.black),
+            const SizedBox(width: 16),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const Spacer(),
+            const Icon(Icons.chevron_right, color: Colors.black),
+          ],
+        ),
+      ),
     );
   }
 
