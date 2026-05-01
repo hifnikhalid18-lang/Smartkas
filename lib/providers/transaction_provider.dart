@@ -20,6 +20,24 @@ class TransactionProvider extends ChangeNotifier {
     });
   }
 
+  double get totalIncome {
+    return _transactions.fold(0.0, (sum, transaction) {
+      if (transaction.type == TransactionType.pemasukan) {
+        return sum + transaction.amount;
+      }
+      return sum;
+    });
+  }
+
+  double get totalExpense {
+    return _transactions.fold(0.0, (sum, transaction) {
+      if (transaction.type == TransactionType.pengeluaran) {
+        return sum + transaction.amount;
+      }
+      return sum;
+    });
+  }
+
   Future<void> _initializeData() async {
     final loadedTransactions = await StorageService.loadTransactions();
     

@@ -4,6 +4,7 @@ import '../widgets/saldo_card.dart';
 import '../widgets/menu_card.dart';
 import '../widgets/transaction_item.dart';
 import 'input_screen.dart';
+import 'history_screen.dart';
 import '../providers/transaction_provider.dart';
 import '../models/transaction.dart';
 
@@ -104,6 +105,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HistoryScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.open_in_new, size: 20, color: Colors.black),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
                     const Spacer(),
                     _buildFilterChip('Semua'),
