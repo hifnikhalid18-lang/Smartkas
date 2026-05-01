@@ -86,10 +86,33 @@ class HistoryScreen extends StatelessWidget {
               // Daftar Terkelompok (Scrollable)
               Expanded(
                 child: transactions.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Belum ada transaksi',
-                          style: TextStyle(color: Colors.black38),
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.history_toggle_off,
+                              size: 80,
+                              color: Colors.black26,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Belum ada riwayat transaksi',
+                              style: TextStyle(
+                                color: Colors.black54,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Data transaksi akan muncul di sini',
+                              style: TextStyle(
+                                color: Colors.black26,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       )
                     : ListView.builder(
