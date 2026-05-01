@@ -55,7 +55,10 @@ class _InputScreenState extends State<InputScreen> {
       return;
     }
 
-    final double? nominal = double.tryParse(nominalText);
+    // Membersihkan input dari titik (pemisah ribuan) agar bisa diparsing
+    final String cleanNominal = nominalText.replaceAll('.', '');
+    final double? nominal = double.tryParse(cleanNominal);
+    
     if (nominal == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Nominal harus berupa angka')),
