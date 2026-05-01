@@ -118,10 +118,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Daftar Transaksi Dinamis & Terfilter
                 Expanded(
                   child: filteredTransactions.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'Tidak ada transaksi',
-                            style: TextStyle(color: Colors.black54, fontSize: 16),
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(
+                                Icons.receipt_long_outlined,
+                                size: 80,
+                                color: Colors.black26,
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                'Belum ada transaksi',
+                                style: TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Klik tombol + untuk menambah',
+                                style: TextStyle(
+                                  color: Colors.black26,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
                         )
                       : ListView.builder(
