@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../widgets/saldo_card.dart';
+import '../widgets/summary_cards.dart';
 import '../widgets/menu_card.dart';
 import '../widgets/transaction_item.dart';
 import 'input_screen.dart';
@@ -47,6 +47,8 @@ class _HomeScreenState extends State<HomeScreen> {
         listenable: transactionProvider,
         builder: (context, _) {
           final balance = transactionProvider.totalBalance;
+          final income = transactionProvider.totalIncome;
+          final expense = transactionProvider.totalExpense;
           
           // Filter logic
           final allTransactions = transactionProvider.transactions;
@@ -62,8 +64,16 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SaldoCard(balance: currencyFormat.format(balance)),
-                const SizedBox(height: 16),
+                SaldoSummaryCard(balance: currencyFormat.format(balance)),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    IncomeSummaryCard(amount: currencyFormat.format(income)),
+                    const SizedBox(width: 12),
+                    ExpenseSummaryCard(amount: currencyFormat.format(expense)),
+                  ],
+                ),
+                const SizedBox(height: 24),
                 Row(
                   children: [
                     MenuCard(
