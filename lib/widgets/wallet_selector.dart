@@ -3,7 +3,6 @@ import '../providers/wallet_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/app_styles.dart';
 import 'create_wallet_modal.dart';
-import 'package:provider/provider.dart';
 
 class WalletSelector extends StatelessWidget {
   const WalletSelector({super.key});
@@ -18,7 +17,6 @@ class WalletSelector extends StatelessWidget {
         }
 
         final activeWallet = walletProvider.activeWallet;
-        final wallets = walletProvider.wallets;
 
         return InkWell(
           onTap: () => _showWalletPicker(context),
@@ -86,7 +84,7 @@ class WalletSelector extends StatelessWidget {
                     trailing: isSelected ? const Icon(Icons.check_circle_rounded, color: AppColors.accent) : null,
                     onTap: () {
                       walletProvider.setActiveWallet(wallet);
-                      context.read<TransactionProvider>().loadTransactions(wallet.id);
+                      transactionProvider.loadTransactions(wallet.id);
                       Navigator.pop(context);
                     },
                   );

@@ -10,6 +10,7 @@ import '../utils/app_styles.dart';
 import '../services/backup_export_service.dart';
 import '../widgets/wallet_selector.dart';
 import '../providers/wallet_provider.dart';
+import 'input_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});

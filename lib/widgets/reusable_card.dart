@@ -8,6 +8,7 @@ class ReusableCard extends StatelessWidget {
   final Color? color;
   final double? borderRadius;
   final VoidCallback? onTap;
+  final BoxBorder? border;
 
   const ReusableCard({
     super.key,
@@ -17,6 +18,7 @@ class ReusableCard extends StatelessWidget {
     this.color,
     this.borderRadius,
     this.onTap,
+    this.border,
   });
 
   @override
@@ -30,7 +32,7 @@ class ReusableCard extends StatelessWidget {
           color: color ?? AppColors.surface,
           borderRadius: BorderRadius.circular(borderRadius ?? AppRadius.md),
           boxShadow: AppColors.softShadow,
-          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+          border: border ?? Border.all(color: AppColors.border.withOpacity(0.5)),
         ),
         child: child,
       ),

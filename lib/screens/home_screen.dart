@@ -71,40 +71,24 @@ class _HomeScreenState extends State<HomeScreen> {
             centerTitle: false,
             actions: [
               const WalletSelector(),
-              const SizedBox(width: AppSpacing.md),
+              IconButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())),
+                icon: const Icon(Icons.notifications_none_rounded),
+              ),
+              const SizedBox(width: AppSpacing.sm),
             ],
             title: ListenableBuilder(
-          listenable: settingsProvider,
-          builder: (context, _) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Halo,',
-                style: AppTextStyles.caption.copyWith(fontSize: 14),
+              listenable: settingsProvider,
+              builder: (context, _) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Halo,', style: AppTextStyles.caption.copyWith(fontSize: 14)),
+                  Text(settingsProvider.username, style: AppTextStyles.title),
+                ],
               ),
-              Text(
-                settingsProvider.username,
-                style: AppTextStyles.title,
-              ),
-            ],
+            ),
           ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SettingsScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.notifications_none_rounded),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-        ],
-      ),
-      body: ListenableBuilder(
+          body: ListenableBuilder(
         listenable: transactionProvider,
         builder: (context, _) {
           final balance = transactionProvider.totalBalance;
@@ -120,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }).toList();
 
           return RefreshIndicator(
-            onRefresh: () async => transactionProvider.loadTransactions(),
+            onRefresh: () async => transactionProvider.loadTransactions(walletProvider.activeWallet?.id ?? ''),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(AppSpacing.md),
