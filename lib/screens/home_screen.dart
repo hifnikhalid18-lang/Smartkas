@@ -13,6 +13,7 @@ import 'history_screen.dart';
 import 'settings_screen.dart';
 import 'statistics_screen.dart';
 import 'savings_screen.dart';
+import 'debt_screen.dart';
 import '../providers/transaction_provider.dart';
 import '../models/transaction.dart';
 import '../utils/currency_formatter.dart';
@@ -156,6 +157,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           onTap: () => _navigateToInput('Pengeluaran'),
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MenuCard(
+                          title: 'Hutang Piutang',
+                          icon: Icons.people_outline_rounded,
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DebtScreen())),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      const Spacer(),
                     ],
                   ),
                   

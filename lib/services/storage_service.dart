@@ -3,11 +3,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaction.dart';
 import '../models/wallet.dart';
 import '../models/savings_goal.dart';
+import '../models/debt.dart';
 
 class StorageService {
   static const String _transactionsPrefix = 'transactions_';
   static const String _walletsKey = 'app_wallets';
   static const String _savingsKey = 'app_savings_goals';
+  static const String _debtKey = 'app_debts';
 
   static Future<List<TransactionModel>> loadTransactions(String walletId) async {
     try {
@@ -61,5 +63,19 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     final String data = jsonEncode(goals.map((g) => g.toJson()).toList());
     await prefs.setString(_savingsKey, data);
+  }
+
+  static Future<List<DebtModel>> loadDebts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? data = prefs.getString(_debtKey);
+    if (data == null) return [];
+    final List<dynamic> jsonList = jsonDecode(data);
+    return jsonList.map((json) => DebtModel.fromJson(json)).toList();
+  }
+
+  static Future<void> saveDebts(List<DebtModel> debts) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String data = jsonEncode(debts.map((d) => d.toJson()).toList());
+    await prefs.setString(_debtKey, data);
   }
 }
