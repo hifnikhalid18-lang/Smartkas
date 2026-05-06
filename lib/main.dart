@@ -3,6 +3,8 @@ import 'screens/splash_screen.dart';
 import 'services/local_notification_service.dart';
 import 'providers/theme_provider.dart';
 import 'utils/reusable_color_scheme.dart';
+import 'providers/security_provider.dart';
+import 'screens/pin_lock_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +26,15 @@ class KasKuApp extends StatelessWidget {
           themeMode: themeProvider.themeMode,
           theme: ReusableColorScheme.lightTheme,
           darkTheme: ReusableColorScheme.darkTheme,
-          home: const SplashScreen(),
+          home: ListenableBuilder(
+            listenable: securityProvider,
+            builder: (context, _) {
+              if (securityProvider.isLocked) {
+                return const PinLockScreen();
+              }
+              return const SplashScreen();
+            },
+          ),
         );
       },
     );

@@ -5,6 +5,8 @@ import '../utils/app_styles.dart';
 import '../widgets/reusable_card.dart';
 import '../widgets/reminder_settings_card.dart';
 import 'theme_settings_screen.dart';
+import 'pin_setup_screen.dart';
+import '../providers/security_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -108,6 +110,71 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const Icon(Icons.chevron_right_rounded, color: AppColors.secondaryText),
                     ],
                   ),
+                ),
+
+                const SizedBox(height: AppSpacing.lg),
+                _buildSectionTitle('KEAMANAN'),
+                ListenableBuilder(
+                  listenable: securityProvider,
+                  builder: (context, _) {
+                    return Column(
+                      children: [
+                        ReusableCard(
+                          margin: const EdgeInsets.only(top: AppSpacing.sm),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.security_rounded, color: AppColors.accent),
+                              const SizedBox(width: AppSpacing.md),
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Kunci PIN', style: AppTextStyles.body),
+                                    Text('Minta PIN saat buka aplikasi', style: AppTextStyles.caption),
+                                  ],
+                                ),
+                              ),
+                              Switch(
+                                value: securityProvider.pinEnabled,
+                                onChanged: (value) {
+                                  if (value) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (_) => const PinSetupScreen()),
+                                    );
+                                  } else {
+                                    securityProvider.togglePIN(false, '');
+                                  }
+                                },
+                                activeColor: AppColors.accent,
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (securityProvider.pinEnabled) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          ReusableCard(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const PinSetupScreen(isChanging: true)),
+                              );
+                            },
+                            child: const Row(
+                              children: [
+                                Icon(Icons.lock_reset_rounded, color: AppColors.secondaryText),
+                                SizedBox(width: AppSpacing.md),
+                                Expanded(
+                                  child: Text('Ubah PIN Keamanan', style: AppTextStyles.body),
+                                ),
+                                Icon(Icons.chevron_right_rounded, color: AppColors.secondaryText),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    );
+                  },
                 ),
 
                 const SizedBox(height: AppSpacing.lg),
