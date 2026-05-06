@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/currency_formatter.dart';
+import '../utils/app_styles.dart';
+import '../widgets/category_dropdown.dart';
+import '../widgets/reusable_card.dart';
 
 class InputScreen extends StatefulWidget {
   final String type;
@@ -22,6 +25,7 @@ class _InputScreenState extends State<InputScreen> {
   late TextEditingController _nominalController;
   late TextEditingController _keteranganController;
   late TransactionType _selectedType;
+  late String _selectedCategory;
   
   String? _nominalError;
   String? _keteranganError;
@@ -41,6 +45,7 @@ class _InputScreenState extends State<InputScreen> {
         (widget.type == 'Pemasukan'
             ? TransactionType.pemasukan
             : TransactionType.pengeluaran);
+    _selectedCategory = widget.transactionToEdit?.category ?? 'Lainnya';
   }
 
   @override
@@ -56,7 +61,6 @@ class _InputScreenState extends State<InputScreen> {
     final String keterangan = _keteranganController.text.trim();
 
     setState(() {
-      // Validasi Nominal
       if (nominalText.isEmpty) {
         _nominalError = 'Nominal tidak boleh kosong';
         isValid = false;
@@ -73,7 +77,6 @@ class _InputScreenState extends State<InputScreen> {
         }
       }
 
-      // Validasi Keterangan
       if (keterangan.isEmpty) {
         _keteranganError = 'Keterangan tidak boleh kosong';
         isValid = false;
@@ -98,13 +101,15 @@ class _InputScreenState extends State<InputScreen> {
         amount: nominal,
         date: widget.transactionToEdit!.date,
         type: _selectedType,
+        category: _selectedCategory,
       );
       transactionProvider.updateTransaction(updatedTransaction);
       
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Transaksi berhasil diperbarui'),
-          backgroundColor: Colors.black,
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.primaryText,
         ),
       );
     } else {
@@ -114,13 +119,15 @@ class _InputScreenState extends State<InputScreen> {
         amount: nominal,
         date: DateTime.now(),
         type: _selectedType,
+        category: _selectedCategory,
       );
       transactionProvider.addTransaction(transaction);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Transaksi berhasil ditambahkan'),
-          backgroundColor: Colors.black,
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.primaryText,
         ),
       );
     }
@@ -133,63 +140,40 @@ class _InputScreenState extends State<InputScreen> {
     final isEditing = widget.transactionToEdit != null;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: Text(
-          isEditing ? 'Edit Transaksi' : 'Tambah ${widget.type}',
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: Colors.black,
-            height: 1.0,
-          ),
-        ),
+        title: Text(isEditing ? 'Edit Transaksi' : 'Tambah ${widget.type}'),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 3. Transaction Type Selector
-              const Text(
-                'TIPE TRANSAKSI',
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 16),
+              _buildSectionTitle('TIPE TRANSAKSI'),
+              const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
                   _buildTypeOption(TransactionType.pemasukan, 'PEMASUKAN'),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: AppSpacing.md),
                   _buildTypeOption(TransactionType.pengeluaran, 'PENGELUARAN'),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppSpacing.lg),
 
-              // 1. Input Nominal Field
-              const Text(
-                'NOMINAL',
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
+              _buildSectionTitle('KATEGORI'),
+              const SizedBox(height: AppSpacing.sm),
+              CategoryDropdown(
+                type: _selectedType,
+                selectedCategory: _selectedCategory,
+                onChanged: (value) {
+                  if (value != null) setState(() => _selectedCategory = value);
+                },
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.lg),
+
+              _buildSectionTitle('NOMINAL'),
+              const SizedBox(height: AppSpacing.sm),
               TextField(
                 controller: _nominalController,
                 keyboardType: TextInputType.number,
@@ -197,92 +181,77 @@ class _InputScreenState extends State<InputScreen> {
                   FilteringTextInputFormatter.digitsOnly,
                   RupiahInputFormatter(),
                 ],
-                style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
+                style: AppTextStyles.body.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
                 decoration: InputDecoration(
                   hintText: 'Rp 0',
-                  hintStyle: const TextStyle(color: Colors.black12),
+                  filled: true,
+                  fillColor: AppColors.surface,
                   errorText: _nominalError,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black, width: 2),
-                    borderRadius: BorderRadius.zero,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                    borderRadius: AppRadius.roundedMd,
                   ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black, width: 2.5),
-                    borderRadius: BorderRadius.zero,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+                    borderRadius: AppRadius.roundedMd,
                   ),
-                  errorBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 2),
-                    borderRadius: BorderRadius.zero,
+                  errorBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+                    borderRadius: AppRadius.roundedMd,
                   ),
-                  focusedErrorBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 2.5),
-                    borderRadius: BorderRadius.zero,
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: AppColors.error, width: 2),
+                    borderRadius: AppRadius.roundedMd,
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppSpacing.lg),
 
-              // 2. Input Keterangan Field
-              const Text(
-                'KETERANGAN',
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 12),
+              _buildSectionTitle('KETERANGAN'),
+              const SizedBox(height: AppSpacing.sm),
               TextField(
                 controller: _keteranganController,
                 maxLines: 2,
-                style: const TextStyle(color: Colors.black, fontSize: 16),
+                style: AppTextStyles.body,
                 decoration: InputDecoration(
                   hintText: 'Contoh: Beli Makan Siang',
-                  hintStyle: const TextStyle(color: Colors.black12),
+                  filled: true,
+                  fillColor: AppColors.surface,
                   errorText: _keteranganError,
                   contentPadding: const EdgeInsets.all(16),
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black, width: 2),
-                    borderRadius: BorderRadius.zero,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                    borderRadius: AppRadius.roundedMd,
                   ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black, width: 2.5),
-                    borderRadius: BorderRadius.zero,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+                    borderRadius: AppRadius.roundedMd,
                   ),
-                  errorBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 2),
-                    borderRadius: BorderRadius.zero,
+                  errorBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+                    borderRadius: AppRadius.roundedMd,
                   ),
-                  focusedErrorBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 2.5),
-                    borderRadius: BorderRadius.zero,
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: AppColors.error, width: 2),
+                    borderRadius: AppRadius.roundedMd,
                   ),
                 ),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: AppSpacing.xl),
 
-              // Submit Button
-              InkWell(
-                onTap: _simpan,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    border: Border.all(color: Colors.black, width: 2),
-                  ),
-                  child: Center(
-                    child: Text(
-                      isEditing ? 'UPDATE DATA' : 'SIMPAN TRANSAKSI',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ),
+              ElevatedButton(
+                onPressed: _simpan,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryText,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: AppRadius.roundedMd),
+                  elevation: 0,
+                ),
+                child: Text(
+                  isEditing ? 'UPDATE DATA' : 'SIMPAN TRANSAKSI',
+                  style: AppTextStyles.body.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -292,24 +261,40 @@ class _InputScreenState extends State<InputScreen> {
     );
   }
 
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+    );
+  }
+
   Widget _buildTypeOption(TransactionType type, String label) {
     final isSelected = _selectedType == type;
     return Expanded(
-      child: InkWell(
-        onTap: () => setState(() => _selectedType = type),
+      child: GestureDetector(
+        onTap: () => setState(() {
+          _selectedType = type;
+          // Reset category to default of new type
+          _selectedCategory = 'Lainnya';
+        }),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.black : Colors.white,
-            border: Border.all(color: Colors.black, width: 2),
+            color: isSelected ? AppColors.accent : AppColors.surface,
+            borderRadius: AppRadius.roundedMd,
+            border: Border.all(
+              color: isSelected ? AppColors.accent : AppColors.border,
+              width: 1.5,
+            ),
+            boxShadow: isSelected ? AppColors.softShadow : null,
           ),
           child: Center(
             child: Text(
               label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
-                fontSize: 14,
+              style: AppTextStyles.body.copyWith(
+                color: isSelected ? Colors.white : AppColors.secondaryText,
                 fontWeight: FontWeight.bold,
+                fontSize: 12,
               ),
             ),
           ),
