@@ -4,6 +4,7 @@ import '../providers/transaction_provider.dart';
 import '../utils/app_styles.dart';
 import '../widgets/reusable_card.dart';
 import '../widgets/reminder_settings_card.dart';
+import 'theme_settings_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -77,6 +78,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const Text('Filter Default Beranda', style: AppTextStyles.caption),
                       const SizedBox(height: AppSpacing.md),
                       _buildFilterSelector(),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: AppSpacing.lg),
+                _buildSectionTitle('TAMPILAN'),
+                ReusableCard(
+                  margin: const EdgeInsets.only(top: AppSpacing.sm),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ThemeSettingsScreen()),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      const Icon(Icons.palette_rounded, color: AppColors.accent),
+                      const SizedBox(width: AppSpacing.md),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Tema Aplikasi', style: AppTextStyles.body),
+                            Text('Terang, Gelap, atau Sistem', style: AppTextStyles.caption),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right_rounded, color: AppColors.secondaryText),
                     ],
                   ),
                 ),

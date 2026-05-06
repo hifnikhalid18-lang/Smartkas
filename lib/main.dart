@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'screens/splash_screen.dart';
-import 'utils/app_styles.dart';
 import 'services/local_notification_service.dart';
+import 'providers/theme_provider.dart';
+import 'utils/reusable_color_scheme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,32 +15,18 @@ class KasKuApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Smartkas',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: AppColors.background,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.accent,
-          primary: AppColors.accent,
-          surface: AppColors.surface,
-          background: AppColors.background,
-        ),
-        textTheme: const TextTheme(
-          displayLarge: AppTextStyles.display,
-          titleLarge: AppTextStyles.title,
-          bodyLarge: AppTextStyles.body,
-          bodyMedium: AppTextStyles.subtitle,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.background,
-          elevation: 0,
-          iconTheme: IconThemeData(color: AppColors.primaryText),
-          titleTextStyle: AppTextStyles.title,
-        ),
-      ),
-      home: const SplashScreen(),
+    return ListenableBuilder(
+      listenable: themeProvider,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'Smartkas',
+          debugShowCheckedModeBanner: false,
+          themeMode: themeProvider.themeMode,
+          theme: ReusableColorScheme.lightTheme,
+          darkTheme: ReusableColorScheme.darkTheme,
+          home: const SplashScreen(),
+        );
+      },
     );
   }
 }
