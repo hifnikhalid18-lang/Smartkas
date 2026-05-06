@@ -7,7 +7,7 @@ class TransactionProvider extends ChangeNotifier {
   bool _isLoading = true;
 
   TransactionProvider() {
-    _initializeData();
+    loadTransactions();
   }
 
   List<TransactionModel> get transactions => List.unmodifiable(_transactions);
@@ -40,7 +40,9 @@ class TransactionProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> _initializeData() async {
+  Future<void> loadTransactions() async {
+    _isLoading = true;
+    notifyListeners();
     final loadedTransactions = await StorageService.loadTransactions();
     
     if (loadedTransactions.isEmpty) {

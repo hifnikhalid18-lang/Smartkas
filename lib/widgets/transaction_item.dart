@@ -1,84 +1,80 @@
 import 'package:flutter/material.dart';
+import '../models/transaction.dart';
+import '../utils/app_styles.dart';
+import '../utils/currency_formatter.dart';
+import 'reusable_card.dart';
 
 class TransactionItem extends StatelessWidget {
-  final String title;
-  final String amount;
-  final String date;
+  final TransactionModel transaction;
   final VoidCallback onDelete;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const TransactionItem({
     super.key,
-    required this.title,
-    required this.amount,
-    required this.date,
+    required this.transaction,
     required this.onDelete,
-    required this.onTap,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.black, width: 1.5),
-        borderRadius: BorderRadius.circular(0),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final isIncome = transaction.type == TransactionType.pemasukan;
+
+    return ReusableCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: (isIncome ? AppColors.success : AppColors.error).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              isIncome ? Icons.south_west_rounded : Icons.north_east_rounded,
+              color: isIncome ? AppColors.success : AppColors.error,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  transaction.title,
+                  style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  transaction.date.toString().split(' ')[0], // Simple date display
+                  style: AppTextStyles.caption,
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: onDelete,
-                    icon: const Icon(Icons.delete_outline, color: Colors.black, size: 22),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
+              Text(
+                '${isIncome ? '+' : '-'} ${CurrencyFormatterHelper.formatRupiah(transaction.amount)}',
+                style: AppTextStyles.body.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: isIncome ? AppColors.success : AppColors.error,
+                ),
               ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    amount,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    date,
-                    style: const TextStyle(
-                      color: Colors.black38,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
+              IconButton(
+                onPressed: onDelete,
+                icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.secondaryText),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }

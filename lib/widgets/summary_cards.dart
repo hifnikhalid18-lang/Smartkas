@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'reusable_card.dart';
+import '../utils/app_styles.dart';
 
 class SaldoSummaryCard extends StatelessWidget {
   final String balance;
@@ -7,33 +9,24 @@ class SaldoSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-      decoration: BoxDecoration(
-        color: Colors.black,
-        border: Border.all(color: Colors.black, width: 2),
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return ReusableCard(
+      color: AppColors.accent,
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg, horizontal: AppSpacing.md),
       child: Column(
         children: [
           const Text(
-            'TOTAL SALDO',
+            'Total Saldo',
             style: TextStyle(
               color: Colors.white70,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.5,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
             balance,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTextStyles.display.copyWith(color: Colors.white, fontSize: 32),
           ),
         ],
       ),
@@ -49,32 +42,30 @@ class IncomeSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.black, width: 2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ReusableCard(
+        margin: EdgeInsets.zero,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
           children: [
-            const Text(
-              'PEMASUKAN',
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.0,
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.success.withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
+              child: const Icon(Icons.arrow_downward_rounded, color: AppColors.success, size: 20),
             ),
-            const SizedBox(height: 4),
-            Text(
-              amount,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Masuk', style: AppTextStyles.caption),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(amount, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                ],
               ),
             ),
           ],
@@ -92,32 +83,30 @@ class ExpenseSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.black, width: 2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ReusableCard(
+        margin: EdgeInsets.zero,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
           children: [
-            const Text(
-              'PENGELUARAN',
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.0,
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.error.withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
+              child: const Icon(Icons.arrow_upward_rounded, color: AppColors.error, size: 20),
             ),
-            const SizedBox(height: 4),
-            Text(
-              amount,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Keluar', style: AppTextStyles.caption),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(amount, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                ],
               ),
             ),
           ],

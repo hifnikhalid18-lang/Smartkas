@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'reusable_card.dart';
+import '../utils/app_styles.dart';
 
 class MenuCard extends StatelessWidget {
   final String title;
@@ -14,32 +16,24 @@ class MenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Colors.black, width: 2),
-            borderRadius: BorderRadius.circular(0),
+    return ReusableCard(
+      onTap: onTap,
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.sm),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: AppColors.accent, size: 24),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            title,
+            style: AppTextStyles.caption.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.primaryText,
+            ),
+            textAlign: TextAlign.center,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: Colors.black, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }

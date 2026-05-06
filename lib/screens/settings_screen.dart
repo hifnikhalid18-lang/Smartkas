@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../providers/settings_provider.dart';
 import '../providers/transaction_provider.dart';
+import '../utils/app_styles.dart';
+import '../widgets/reusable_card.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -27,73 +29,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: const Text(
-          'Pengaturan',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: Colors.black, height: 1.0),
-        ),
+        title: const Text('Pengaturan'),
       ),
       body: ListenableBuilder(
         listenable: settingsProvider,
         builder: (context, _) {
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // 3. Username Input
-                const Text(
-                  'NAMA PENGGUNA / KAS',
-                  style: TextStyle(color: Colors.black54, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _usernameController,
-                  onChanged: (value) => settingsProvider.setUsername(value),
-                  decoration: const InputDecoration(
-                    hintText: 'Contoh: Kas Keluarga',
-                    enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 2), borderRadius: BorderRadius.zero),
-                    focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 2.5), borderRadius: BorderRadius.zero),
+                _buildSectionTitle('PROFIL'),
+                ReusableCard(
+                  margin: const EdgeInsets.only(top: AppSpacing.sm),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Nama Pengguna / Kas', style: AppTextStyles.caption),
+                      const SizedBox(height: AppSpacing.sm),
+                      TextField(
+                        controller: _usernameController,
+                        onChanged: (value) => settingsProvider.setUsername(value),
+                        decoration: InputDecoration(
+                          hintText: 'Contoh: Kas Keluarga',
+                          filled: true,
+                          fillColor: AppColors.background,
+                          border: OutlineInputBorder(
+                            borderRadius: AppRadius.roundedMd,
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 32),
-
-                // 2. Default Filter Selector
-                const Text(
-                  'FILTER DEFAULT BERANDA',
-                  style: TextStyle(color: Colors.black54, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                
+                const SizedBox(height: AppSpacing.lg),
+                _buildSectionTitle('PREFERENSI'),
+                ReusableCard(
+                  margin: const EdgeInsets.only(top: AppSpacing.sm),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Filter Default Beranda', style: AppTextStyles.caption),
+                      const SizedBox(height: AppSpacing.md),
+                      _buildFilterSelector(),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 12),
-                _buildFilterSelector(),
-                const SizedBox(height: 48),
 
-                // 1. Reset Data Button
-                const Text(
-                  'ZONA BERHAYA',
-                  style: TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-                ),
-                const SizedBox(height: 12),
-                InkWell(
+                const SizedBox(height: AppSpacing.xl),
+                _buildSectionTitle('ZONA BERBAHAYA'),
+                ReusableCard(
+                  margin: const EdgeInsets.only(top: AppSpacing.sm),
+                  color: AppColors.error.withOpacity(0.05),
                   onTap: () => _showResetDialog(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red, width: 2),
-                    ),
-                    child: const Center(
-                      child: Text(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.delete_forever_rounded, color: AppColors.error),
+                      const SizedBox(width: AppSpacing.md),
+                      Text(
                         'RESET SEMUA DATA',
-                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                        style: AppTextStyles.body.copyWith(color: AppColors.error, fontWeight: FontWeight.bold),
                       ),
-                    ),
+                      const Spacer(),
+                      const Icon(Icons.chevron_right_rounded, color: AppColors.error),
+                    ],
                   ),
                 ),
               ],
@@ -104,31 +107,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+      child: Text(
+        title,
+        style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+      ),
+    );
+  }
+
   Widget _buildFilterSelector() {
     final filters = ['Semua', 'Pemasukan', 'Pengeluaran'];
-    return Row(
-      children: filters.map((filter) {
-        final isSelected = settingsProvider.defaultFilter == filter;
-        return Expanded(
-          child: InkWell(
-            onTap: () => settingsProvider.setDefaultFilter(filter),
-            child: Container(
-              margin: EdgeInsets.only(right: filter == 'Pengeluaran' ? 0 : 8),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.black : Colors.white,
-                border: Border.all(color: Colors.black, width: 2),
-              ),
-              child: Center(
-                child: Text(
-                  filter,
-                  style: TextStyle(color: isSelected ? Colors.white : Colors.black, fontWeight: FontWeight.bold, fontSize: 12),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: AppRadius.roundedMd,
+      ),
+      padding: const EdgeInsets.all(4),
+      child: Row(
+        children: filters.map((filter) {
+          final isSelected = settingsProvider.defaultFilter == filter;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => settingsProvider.setDefaultFilter(filter),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.accent : Colors.transparent,
+                  borderRadius: AppRadius.roundedMd,
+                ),
+                child: Center(
+                  child: Text(
+                    filter,
+                    style: AppTextStyles.caption.copyWith(
+                      color: isSelected ? Colors.white : AppColors.secondaryText,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -136,21 +158,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(side: BorderSide(color: Colors.black, width: 2), borderRadius: BorderRadius.zero),
-        title: const Text('Reset Data?', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.roundedMd),
+        title: const Text('Reset Data?'),
         content: const Text('Tindakan ini akan menghapus seluruh transaksi secara permanen.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal', style: TextStyle(color: Colors.black54))),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: AppColors.secondaryText)),
+          ),
           TextButton(
             onPressed: () {
               transactionProvider.clearAllTransactions();
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Data berhasil direset'), backgroundColor: Colors.black),
+                const SnackBar(
+                  content: Text('Data berhasil direset'),
+                  behavior: SnackBarBehavior.floating,
+                ),
               );
             },
-            child: const Text('Reset', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            child: const Text('Reset', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

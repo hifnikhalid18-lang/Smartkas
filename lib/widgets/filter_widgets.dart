@@ -4,6 +4,7 @@ import '../models/transaction.dart';
 import '../widgets/transaction_item.dart';
 import '../screens/input_screen.dart';
 import '../utils/currency_formatter.dart';
+import '../utils/app_styles.dart';
 
 class FilterChipWidget extends StatelessWidget {
   final String label;
@@ -19,21 +20,24 @@ class FilterChipWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.black : Colors.white,
-          border: Border.all(color: Colors.black, width: 1.5),
-          borderRadius: BorderRadius.circular(4),
+          color: isSelected ? AppColors.accent : AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.accent : AppColors.border,
+            width: 1,
+          ),
+          boxShadow: isSelected ? AppColors.softShadow : null,
         ),
         child: Text(
           label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
+          style: AppTextStyles.caption.copyWith(
+            color: isSelected ? Colors.white : AppColors.secondaryText,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),
@@ -58,9 +62,7 @@ class TransactionListView extends StatelessWidget {
       itemBuilder: (context, index) {
         final transaction = transactions[index];
         return TransactionItem(
-          title: transaction.title,
-          amount: CurrencyFormatterHelper.formatRupiah(transaction.amount),
-          date: DateFormat('dd MMM yyyy').format(transaction.date),
+          transaction: transaction,
           onDelete: () => onDelete(transaction),
           onTap: () {
             Navigator.push(

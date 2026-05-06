@@ -3,8 +3,10 @@ import 'package:intl/intl.dart';
 import '../providers/transaction_provider.dart';
 import '../widgets/transaction_item.dart';
 import '../widgets/status_widgets.dart';
+import '../widgets/reusable_card.dart';
 import '../models/transaction.dart';
 import '../utils/currency_formatter.dart';
+import '../utils/app_styles.dart';
 import '../services/backup_export_service.dart';
 import 'input_screen.dart';
 
@@ -28,37 +30,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: const Text(
-          'Riwayat Transaksi',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('Riwayat Transaksi'),
         actions: [
           IconButton(
             onPressed: () => _showDataManagement(context),
-            icon: const Icon(Icons.settings, color: Colors.black),
+            icon: const Icon(Icons.tune_rounded),
             tooltip: 'Manajemen Data',
           ),
           IconButton(
             onPressed: () => _showResetDialog(context),
-            icon: const Icon(Icons.refresh, color: Colors.black),
+            icon: const Icon(Icons.refresh_rounded),
             tooltip: 'Reset Semua Data',
           ),
+          const SizedBox(width: AppSpacing.sm),
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: Colors.black,
-            height: 1.0,
-          ),
-        ),
       ),
       body: ListenableBuilder(
         listenable: transactionProvider,
@@ -89,26 +76,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                padding: const EdgeInsets.all(AppSpacing.md),
                 child: TextField(
                   controller: _searchController,
                   onChanged: (value) => setState(() => _searchQuery = value),
                   decoration: InputDecoration(
                     hintText: 'Cari keterangan atau nominal...',
-                    hintStyle: const TextStyle(color: Colors.black26, fontSize: 14),
-                    prefixIcon: const Icon(Icons.search, color: Colors.black),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 1.5),
-                      borderRadius: BorderRadius.zero,
+                    hintStyle: AppTextStyles.caption.copyWith(color: AppColors.secondaryText.withOpacity(0.5)),
+                    prefixIcon: const Icon(Icons.search_rounded, color: AppColors.secondaryText),
+                    filled: true,
+                    fillColor: AppColors.surface,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                      borderRadius: AppRadius.roundedMd,
                     ),
-                    focusedBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 2),
-                      borderRadius: BorderRadius.zero,
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+                      borderRadius: AppRadius.roundedMd,
                     ),
                     suffixIcon: _searchQuery.isNotEmpty 
                       ? IconButton(
-                          icon: const Icon(Icons.clear, color: Colors.black),
+                          icon: const Icon(Icons.clear_rounded, color: AppColors.secondaryText),
                           onPressed: () {
                             _searchController.clear();
                             setState(() => _searchQuery = '');
@@ -120,29 +109,26 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
 
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.black, width: 2),
-                  ),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: ReusableCard(
+                  margin: EdgeInsets.zero,
+                  padding: const EdgeInsets.all(AppSpacing.md),
                   child: Column(
                     children: [
                       _buildSummaryRow('TOTAL SALDO', CurrencyFormatterHelper.formatRupiah(balance), isBold: true),
                       const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Divider(color: Colors.black, thickness: 1),
+                        padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                        child: Divider(color: AppColors.border, thickness: 0.5),
                       ),
-                      _buildSummaryRow('Pemasukan', CurrencyFormatterHelper.formatRupiah(income)),
+                      _buildSummaryRow('Pemasukan', CurrencyFormatterHelper.formatRupiah(income), color: AppColors.success),
                       const SizedBox(height: 6),
-                      _buildSummaryRow('Pengeluaran', CurrencyFormatterHelper.formatRupiah(expense)),
+                      _buildSummaryRow('Pengeluaran', CurrencyFormatterHelper.formatRupiah(expense), color: AppColors.error),
                     ],
                   ),
                 ),
               ),
               
-              Container(height: 1, color: Colors.black12),
+              const SizedBox(height: AppSpacing.md),
               
               Expanded(
                 child: SafeDataWrapper(
@@ -155,7 +141,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ? Icons.history_toggle_off 
                       : Icons.search_off,
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                     physics: const BouncingScrollPhysics(),
                     itemCount: dateKeys.length,
                     itemBuilder: (context, index) {
@@ -166,48 +152,42 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12.0),
+                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                             child: Row(
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    dateKey,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
+                                Text(
+                                  dateKey,
+                                  style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
                                 ),
-                                const Expanded(child: Divider(indent: 8, color: Colors.black12)),
+                                const Expanded(child: Divider(indent: AppSpacing.sm, color: AppColors.border)),
                               ],
                             ),
                           ),
-                          ...items.map((transaction) {
-                            return TransactionItem(
-                              title: transaction.title,
-                              amount: CurrencyFormatterHelper.formatRupiah(transaction.amount),
-                              date: DateFormat('HH:mm').format(transaction.date),
-                              onDelete: () => _showDeleteDialog(context, transaction),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => InputScreen(
-                                      type: transaction.type == TransactionType.pemasukan ? 'Pemasukan' : 'Pengeluaran',
-                                      transactionToEdit: transaction,
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: items.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                            itemBuilder: (context, i) {
+                              final tx = items[i];
+                              return TransactionItem(
+                                transaction: tx,
+                                onDelete: () => _showDeleteDialog(context, tx),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => InputScreen(
+                                        type: tx.type == TransactionType.pemasukan ? 'Pemasukan' : 'Pengeluaran',
+                                        transactionToEdit: tx,
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                            );
-                          }).toList(),
-                          const SizedBox(height: 8),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
                         ],
                       );
                     },
@@ -221,25 +201,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
+  Widget _buildSummaryRow(String label, String value, {bool isBold = false, Color? color}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: TextStyle(
-            color: isBold ? Colors.black : Colors.black54,
-            fontSize: isBold ? 14 : 13,
+          style: AppTextStyles.caption.copyWith(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            letterSpacing: isBold ? 1.0 : 0.0,
           ),
         ),
         Text(
           value,
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-            fontSize: isBold ? 18 : 15,
+          style: AppTextStyles.body.copyWith(
+            fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+            fontSize: isBold ? 18 : 14,
+            color: color ?? AppColors.primaryText,
           ),
         ),
       ],
@@ -249,51 +226,49 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void _showDataManagement(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-        side: BorderSide(color: Colors.black, width: 2),
-        borderRadius: BorderRadius.zero,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
       builder: (context) {
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl, horizontal: AppSpacing.lg),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'MANAJEMEN DATA',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1.2),
+                style: AppTextStyles.title.copyWith(letterSpacing: 1.2),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.lg),
               _buildDataButton(
                 context, 
                 'Backup Data (JSON)', 
-                Icons.backup_outlined, 
+                Icons.backup_rounded, 
                 () => BackupExportService.backupData(transactionProvider.transactions)
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               _buildDataButton(
                 context, 
                 'Restore Data (JSON)', 
-                Icons.restore_outlined, 
+                Icons.restore_rounded, 
                 () async {
                   bool success = await BackupExportService.restoreData();
                   if (success && mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Data berhasil direstore!'), backgroundColor: Colors.black),
+                      const SnackBar(content: Text('Data berhasil direstore!'), behavior: SnackBarBehavior.floating),
                     );
                   }
                 }
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               _buildDataButton(
                 context, 
                 'Ekspor Data (CSV)', 
-                Icons.description_outlined, 
+                Icons.description_rounded, 
                 () => BackupExportService.exportToCSV(transactionProvider.transactions)
               ),
-              const SizedBox(height: 12),
             ],
           ),
         );
@@ -302,22 +277,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildDataButton(BuildContext context, String label, IconData icon, VoidCallback onTap) {
-    return InkWell(
+    return ReusableCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.md),
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black, width: 2),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.black),
-            const SizedBox(width: 16),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const Spacer(),
-            const Icon(Icons.chevron_right, color: Colors.black),
-          ],
-        ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.accent),
+          const SizedBox(width: AppSpacing.md),
+          Text(label, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600)),
+          const Spacer(),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.secondaryText),
+        ],
       ),
     );
   }
@@ -327,23 +298,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: const RoundedRectangleBorder(
-            side: BorderSide(color: Colors.black, width: 2),
-            borderRadius: BorderRadius.zero,
-          ),
-          title: const Text(
-            'Hapus Transaksi?',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-          content: const Text(
-            'Data yang dihapus tidak bisa dikembalikan.',
-            style: TextStyle(color: Colors.black),
-          ),
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.roundedMd),
+          title: const Text('Hapus Transaksi?'),
+          content: const Text('Data yang dihapus tidak bisa dikembalikan.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: TextStyle(color: Colors.black54)),
+              child: const Text('Batal', style: TextStyle(color: AppColors.secondaryText)),
             ),
             TextButton(
               onPressed: () {
@@ -352,14 +314,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Transaksi berhasil dihapus'),
-                    backgroundColor: Colors.black,
+                    backgroundColor: AppColors.primaryText,
+                    behavior: SnackBarBehavior.floating,
                   ),
                 );
               },
-              child: const Text(
-                'Hapus',
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-              ),
+              child: const Text('Hapus', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -372,23 +332,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: const RoundedRectangleBorder(
-            side: BorderSide(color: Colors.black, width: 2),
-            borderRadius: BorderRadius.zero,
-          ),
-          title: const Text(
-            'Reset Semua Data?',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-          content: const Text(
-            'Tindakan ini akan menghapus SELURUH transaksi dan mengembalikan saldo ke Rp 0. Apakah Anda yakin?',
-            style: TextStyle(color: Colors.black),
-          ),
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.roundedMd),
+          title: const Text('Reset Semua Data?'),
+          content: const Text('Tindakan ini akan menghapus SELURUH transaksi. Apakah Anda yakin?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: TextStyle(color: Colors.black54)),
+              child: const Text('Batal', style: TextStyle(color: AppColors.secondaryText)),
             ),
             TextButton(
               onPressed: () {
@@ -397,14 +348,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Seluruh data berhasil dihapus'),
-                    backgroundColor: Colors.black,
+                    backgroundColor: AppColors.primaryText,
+                    behavior: SnackBarBehavior.floating,
                   ),
                 );
               },
-              child: const Text(
-                'Reset',
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-              ),
+              child: const Text('Reset', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
             ),
           ],
         );

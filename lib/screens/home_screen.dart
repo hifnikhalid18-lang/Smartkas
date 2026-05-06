@@ -3,6 +3,7 @@ import '../widgets/summary_cards.dart';
 import '../widgets/menu_card.dart';
 import '../widgets/filter_widgets.dart';
 import '../widgets/status_widgets.dart';
+import '../widgets/bottom_nav_bar.dart';
 import '../providers/settings_provider.dart';
 import 'input_screen.dart';
 import 'history_screen.dart';
@@ -10,6 +11,8 @@ import 'settings_screen.dart';
 import '../providers/transaction_provider.dart';
 import '../models/transaction.dart';
 import '../utils/currency_formatter.dart';
+import '../utils/app_styles.dart';
+import '../widgets/transaction_item.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
   String _selectedFilter = 'Semua';
 
   @override
@@ -27,22 +31,36 @@ class _HomeScreenState extends State<HomeScreen> {
     _selectedFilter = settingsProvider.defaultFilter;
   }
 
+  void _onTabTapped(int index) {
+    if (index == 1) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen()));
+    } else if (index == 2) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+    } else {
+      setState(() => _currentIndex = index);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         centerTitle: false,
         title: ListenableBuilder(
           listenable: settingsProvider,
-          builder: (context, _) => Text(
-            settingsProvider.username,
-            style: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
+          builder: (context, _) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Halo,',
+                style: AppTextStyles.caption.copyWith(fontSize: 14),
+              ),
+              Text(
+                settingsProvider.username,
+                style: AppTextStyles.title,
+              ),
+            ],
           ),
         ),
         actions: [
@@ -55,16 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
             },
-            icon: const Icon(Icons.settings, color: Colors.black),
+            icon: const Icon(Icons.notifications_none_rounded),
           ),
+          const SizedBox(width: AppSpacing.sm),
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: Colors.black,
-            height: 1.0,
-          ),
-        ),
       ),
       body: ListenableBuilder(
         listenable: transactionProvider,
@@ -81,140 +93,105 @@ class _HomeScreenState extends State<HomeScreen> {
             return true;
           }).toList();
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SaldoSummaryCard(balance: CurrencyFormatterHelper.formatRupiah(balance)),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    IncomeSummaryCard(amount: CurrencyFormatterHelper.formatRupiah(income)),
-                    const SizedBox(width: 12),
-                    ExpenseSummaryCard(amount: CurrencyFormatterHelper.formatRupiah(expense)),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    MenuCard(
-                      title: 'Pemasukan',
-                      icon: Icons.add_circle_outline,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const InputScreen(type: 'Pemasukan'),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 12),
-                    MenuCard(
-                      title: 'Pengeluaran',
-                      icon: Icons.remove_circle_outline,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const InputScreen(type: 'Pengeluaran'),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                
-                Row(
-                  children: [
-                    const Text(
-                      'Riwayat',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const HistoryScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.open_in_new, size: 20, color: Colors.black),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const Spacer(),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
+          return RefreshIndicator(
+            onRefresh: () async => transactionProvider.loadTransactions(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SaldoSummaryCard(balance: CurrencyFormatterHelper.formatRupiah(balance)),
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
                     children: [
-                      FilterChipWidget(
-                        label: 'Semua',
-                        isSelected: _selectedFilter == 'Semua',
-                        onTap: () => setState(() => _selectedFilter = 'Semua'),
+                      IncomeSummaryCard(amount: CurrencyFormatterHelper.formatRupiah(income)),
+                      const SizedBox(width: AppSpacing.md),
+                      ExpenseSummaryCard(amount: CurrencyFormatterHelper.formatRupiah(expense)),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  
+                  Text('Menu Cepat', style: AppTextStyles.title.copyWith(fontSize: 18)),
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MenuCard(
+                          title: 'Tambah Masuk',
+                          icon: Icons.add_rounded,
+                          onTap: () => _navigateToInput('Pemasukan'),
+                        ),
                       ),
-                      const SizedBox(width: 8),
-                      FilterChipWidget(
-                        label: 'Pemasukan',
-                        isSelected: _selectedFilter == 'Pemasukan',
-                        onTap: () => setState(() => _selectedFilter = 'Pemasukan'),
-                      ),
-                      const SizedBox(width: 8),
-                      FilterChipWidget(
-                        label: 'Pengeluaran',
-                        isSelected: _selectedFilter == 'Pengeluaran',
-                        onTap: () => setState(() => _selectedFilter = 'Pengeluaran'),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: MenuCard(
+                          title: 'Tambah Keluar',
+                          icon: Icons.remove_rounded,
+                          onTap: () => _navigateToInput('Pengeluaran'),
+                        ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 16),
-                
-                Expanded(
-                  child: SafeDataWrapper(
+                  
+                  const SizedBox(height: AppSpacing.lg),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Transaksi Terakhir', style: AppTextStyles.title.copyWith(fontSize: 18)),
+                      TextButton(
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen())),
+                        child: const Text('Lihat Semua', style: TextStyle(color: AppColors.accent)),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: AppSpacing.sm),
+                  SafeDataWrapper(
                     isLoading: transactionProvider.isLoading,
                     isEmpty: filteredTransactions.isEmpty,
                     emptyMessage: 'Belum ada transaksi',
                     emptyIcon: Icons.receipt_long_outlined,
-                    child: TransactionListView(
-                      transactions: filteredTransactions,
-                      onDelete: (transaction) => _showDeleteDialog(context, transaction),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: filteredTransactions.length > 5 ? 5 : filteredTransactions.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                      itemBuilder: (context, index) {
+                        final tx = filteredTransactions[index];
+                        return TransactionItem(
+                          transaction: tx,
+                          onDelete: () => _showDeleteDialog(context, tx),
+                        );
+                      },
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
       ),
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: _onTabTapped,
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const InputScreen(type: 'Transaksi'),
-            ),
-          );
-        },
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Colors.black, width: 2),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Icon(Icons.add, size: 32),
+        onPressed: () => _navigateToInput('Transaksi'),
+        backgroundColor: AppColors.accent,
+        foregroundColor: Colors.white,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.add_rounded, size: 32),
+      ),
+    );
+  }
+
+  void _navigateToInput(String type) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InputScreen(type: type),
       ),
     );
   }
@@ -224,23 +201,14 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: const RoundedRectangleBorder(
-            side: BorderSide(color: Colors.black, width: 2),
-            borderRadius: BorderRadius.zero,
-          ),
-          title: const Text(
-            'Hapus Transaksi?',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-          content: const Text(
-            'Data yang dihapus tidak bisa dikembalikan.',
-            style: TextStyle(color: Colors.black),
-          ),
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.roundedMd),
+          title: const Text('Hapus Transaksi?'),
+          content: const Text('Data yang dihapus tidak bisa dikembalikan.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: TextStyle(color: Colors.black54)),
+              child: const Text('Batal', style: TextStyle(color: AppColors.secondaryText)),
             ),
             TextButton(
               onPressed: () {
@@ -249,14 +217,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Transaksi berhasil dihapus'),
-                    backgroundColor: Colors.black,
+                    backgroundColor: AppColors.primaryText,
+                    behavior: SnackBarBehavior.floating,
                   ),
                 );
               },
-              child: const Text(
-                'Hapus',
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-              ),
+              child: const Text('Hapus', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
             ),
           ],
         );
