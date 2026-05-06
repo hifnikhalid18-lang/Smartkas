@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'screens/splash_screen.dart';
 import 'utils/app_styles.dart';
+import 'services/local_notification_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await LocalNotificationService.init();
   runApp(const KasKuApp());
 }
 

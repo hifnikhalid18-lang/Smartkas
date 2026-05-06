@@ -3,6 +3,7 @@ import '../providers/settings_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/app_styles.dart';
 import '../widgets/reusable_card.dart';
+import '../widgets/reminder_settings_card.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -79,6 +80,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
+
+                const SizedBox(height: AppSpacing.lg),
+                _buildSectionTitle('PENGINGAT'),
+                const ReminderSettingsCard(),
 
                 const SizedBox(height: AppSpacing.xl),
                 _buildSectionTitle('ZONA BERBAHAYA'),
