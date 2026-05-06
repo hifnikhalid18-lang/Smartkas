@@ -8,7 +8,8 @@ import '../models/transaction.dart';
 import '../utils/currency_formatter.dart';
 import '../utils/app_styles.dart';
 import '../services/backup_export_service.dart';
-import 'input_screen.dart';
+import '../widgets/wallet_selector.dart';
+import '../providers/wallet_provider.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -22,6 +23,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Load transactions if needed (though usually handled by home)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (walletProvider.activeWallet != null) {
+        transactionProvider.loadTransactions(walletProvider.activeWallet!.id);
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -29,25 +41,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Riwayat Transaksi'),
-        actions: [
-          IconButton(
-            onPressed: () => _showDataManagement(context),
-            icon: const Icon(Icons.tune_rounded),
-            tooltip: 'Manajemen Data',
+    return ListenableBuilder(
+      listenable: walletProvider,
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            title: const Text('Riwayat'),
+            actions: [
+              const WalletSelector(),
+              IconButton(
+                onPressed: () => _showDataManagement(context),
+                icon: const Icon(Icons.tune_rounded),
+                tooltip: 'Manajemen Data',
+              ),
+              const SizedBox(width: AppSpacing.sm),
+            ],
           ),
-          IconButton(
-            onPressed: () => _showResetDialog(context),
-            icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Reset Semua Data',
-          ),
-          const SizedBox(width: AppSpacing.sm),
-        ],
-      ),
-      body: ListenableBuilder(
+          body: ListenableBuilder(
         listenable: transactionProvider,
         builder: (context, _) {
           final allTransactions = transactionProvider.transactions;
@@ -199,6 +210,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         },
       ),
     );
+  },
+);
   }
 
   Widget _buildSummaryRow(String label, String value, {bool isBold = false, Color? color}) {

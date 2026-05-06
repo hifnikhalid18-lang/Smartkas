@@ -1,43 +1,39 @@
 import 'package:flutter/material.dart';
 import '../models/transaction.dart';
 import '../services/storage_service.dart';
+import 'wallet_provider.dart';
 
 class TransactionProvider extends ChangeNotifier {
   List<TransactionModel> _transactions = [];
   bool _isLoading = true;
+  String? _currentWalletId;
 
   TransactionProvider() {
-    loadTransactions();
+    // Initial load will be triggered by the UI or when active wallet is ready
   }
 
   List<TransactionModel> get transactions => List.unmodifiable(_transactions);
   bool get isLoading => _isLoading;
 
+  // Total Statistics
   double get totalBalance {
     return _transactions.fold(0.0, (sum, transaction) {
-      if (transaction.type == TransactionType.pemasukan) {
-        return sum + transaction.amount;
-      }
-      return sum - transaction.amount;
+      return transaction.type == TransactionType.pemasukan 
+          ? sum + transaction.amount 
+          : sum - transaction.amount;
     });
   }
 
   double get totalIncome {
-    return _transactions.fold(0.0, (sum, transaction) {
-      if (transaction.type == TransactionType.pemasukan) {
-        return sum + transaction.amount;
-      }
-      return sum;
-    });
+    return _transactions.fold(0.0, (sum, tx) => 
+      tx.type == TransactionType.pemasukan ? sum + tx.amount : sum
+    );
   }
 
   double get totalExpense {
-    return _transactions.fold(0.0, (sum, transaction) {
-      if (transaction.type == TransactionType.pengeluaran) {
-        return sum + transaction.amount;
-      }
-      return sum;
-    });
+    return _transactions.fold(0.0, (sum, tx) => 
+      tx.type == TransactionType.pengeluaran ? sum + tx.amount : sum
+    );
   }
 
   // Monthly Statistics
@@ -67,54 +63,45 @@ class TransactionProvider extends ChangeNotifier {
     return (monthlyExpense / monthlyIncome) * 100;
   }
 
-  Future<void> loadTransactions() async {
+  Future<void> loadTransactions(String walletId) async {
+    _currentWalletId = walletId;
     _isLoading = true;
     notifyListeners();
-    final loadedTransactions = await StorageService.loadTransactions();
     
-    if (loadedTransactions.isEmpty) {
-      _transactions = [
-        TransactionModel(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          title: 'Saldo Awal',
-          amount: 50000,
-          date: DateTime.now(),
-          type: TransactionType.pemasukan,
-        ),
-      ];
-      await StorageService.saveTransactions(_transactions);
-    } else {
-      _transactions = loadedTransactions;
-    }
+    _transactions = await StorageService.loadTransactions(walletId);
     
     _isLoading = false;
     notifyListeners();
   }
 
   void addTransaction(TransactionModel transaction) {
+    if (_currentWalletId == null) return;
     _transactions.insert(0, transaction);
-    StorageService.saveTransactions(_transactions);
+    StorageService.saveTransactions(_currentWalletId!, _transactions);
     notifyListeners();
   }
 
   void updateTransaction(TransactionModel updatedTransaction) {
+    if (_currentWalletId == null) return;
     final index = _transactions.indexWhere((tx) => tx.id == updatedTransaction.id);
     if (index != -1) {
       _transactions[index] = updatedTransaction;
-      StorageService.saveTransactions(_transactions);
+      StorageService.saveTransactions(_currentWalletId!, _transactions);
       notifyListeners();
     }
   }
 
   void deleteTransaction(TransactionModel transaction) {
+    if (_currentWalletId == null) return;
     _transactions.removeWhere((tx) => tx.id == transaction.id);
-    StorageService.saveTransactions(_transactions);
+    StorageService.saveTransactions(_currentWalletId!, _transactions);
     notifyListeners();
   }
 
   void clearAllTransactions() {
+    if (_currentWalletId == null) return;
     _transactions.clear();
-    StorageService.saveTransactions(_transactions);
+    StorageService.saveTransactions(_currentWalletId!, _transactions);
     notifyListeners();
   }
 }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../widgets/summary_cards.dart';
 import '../widgets/menu_card.dart';
 import '../widgets/filter_widgets.dart';
 import '../widgets/status_widgets.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../providers/settings_provider.dart';
+import '../providers/wallet_provider.dart';
+import '../widgets/wallet_selector.dart';
 import 'input_screen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
@@ -30,6 +33,15 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _selectedFilter = settingsProvider.defaultFilter;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
+  }
+
+  void _loadData() {
+    if (walletProvider.activeWallet != null) {
+      context.read<TransactionProvider>().loadTransactions(walletProvider.activeWallet!.id);
+    }
   }
 
   void _onTabTapped(int index) {
@@ -46,11 +58,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        centerTitle: false,
-        title: ListenableBuilder(
+    return ListenableBuilder(
+      listenable: walletProvider,
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            centerTitle: false,
+            actions: [
+              const WalletSelector(),
+              const SizedBox(width: AppSpacing.md),
+            ],
+            title: ListenableBuilder(
           listenable: settingsProvider,
           builder: (context, _) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,11 +202,12 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () => _navigateToInput('Transaksi'),
         backgroundColor: AppColors.accent,
         foregroundColor: Colors.white,
-        elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: const Icon(Icons.add_rounded, size: 32),
       ),
     );
+  },
+);
   }
 
   void _navigateToInput(String type) {
