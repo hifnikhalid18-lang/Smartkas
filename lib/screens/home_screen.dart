@@ -8,6 +8,7 @@ import '../providers/settings_provider.dart';
 import 'input_screen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
+import 'statistics_screen.dart';
 import '../providers/transaction_provider.dart';
 import '../models/transaction.dart';
 import '../utils/currency_formatter.dart';
@@ -35,6 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (index == 1) {
       Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen()));
     } else if (index == 2) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const StatisticsScreen()));
+    } else if (index == 3) {
       Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
     } else {
       setState(() => _currentIndex = index);

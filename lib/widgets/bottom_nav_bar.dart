@@ -31,7 +31,8 @@ class CustomBottomNavBar extends StatelessWidget {
           children: [
             _buildNavItem(0, Icons.home_rounded, 'Beranda'),
             _buildNavItem(1, Icons.history_rounded, 'Riwayat'),
-            _buildNavItem(2, Icons.settings_rounded, 'Pengaturan'),
+            _buildNavItem(2, Icons.analytics_rounded, 'Statistik'),
+            _buildNavItem(3, Icons.settings_rounded, 'Pengaturan'),
           ],
         ),
       ),

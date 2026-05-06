@@ -40,6 +40,33 @@ class TransactionProvider extends ChangeNotifier {
     });
   }
 
+  // Monthly Statistics
+  List<TransactionModel> get _monthlyTransactions {
+    final now = DateTime.now();
+    return _transactions.where((tx) => 
+      tx.date.month == now.month && tx.date.year == now.year
+    ).toList();
+  }
+
+  double get monthlyIncome {
+    return _monthlyTransactions.fold(0.0, (sum, tx) => 
+      tx.type == TransactionType.pemasukan ? sum + tx.amount : sum
+    );
+  }
+
+  double get monthlyExpense {
+    return _monthlyTransactions.fold(0.0, (sum, tx) => 
+      tx.type == TransactionType.pengeluaran ? sum + tx.amount : sum
+    );
+  }
+
+  double get monthlyBalance => monthlyIncome - monthlyExpense;
+
+  double get expensePercentage {
+    if (monthlyIncome == 0) return 0;
+    return (monthlyExpense / monthlyIncome) * 100;
+  }
+
   Future<void> loadTransactions() async {
     _isLoading = true;
     notifyListeners();
