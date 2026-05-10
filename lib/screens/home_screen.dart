@@ -60,15 +60,15 @@ class _HomeScreenState extends State<HomeScreen> {
             body: ListenableBuilder(
               listenable: transactionProvider,
               builder: (context, _) {
-                final balance = transactionProvider.totalBalance;
-                final income = transactionProvider.totalIncome;
-                final expense = transactionProvider.totalExpense;
+                final balance      = transactionProvider.totalBalance;
+                final income       = transactionProvider.totalIncome;
+                final expense      = transactionProvider.totalExpense;
                 final transactions = transactionProvider.filteredTransactions;
 
                 return CustomScrollView(
                   slivers: [
                     _buildSliverAppBar(),
-                    SliverToBoxAdapter(child: _buildBalanceSection(balance, income, expense)),
+                    SliverToBoxAdapter(child: _buildBalanceCard(balance, income, expense)),
                     SliverToBoxAdapter(child: _buildFilterBar()),
                     SliverToBoxAdapter(child: _buildListHeader(transactions.length)),
                     _buildTransactionList(transactions),
@@ -104,7 +104,11 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text(
               'SMARTKAS',
-              style: AppTextStyles.sectionLabel.copyWith(color: AppColors.accent, fontSize: 9),
+              style: AppTextStyles.sectionLabel.copyWith(
+                color: AppColors.accent,
+                fontSize: 9,
+                letterSpacing: 1.8,
+              ),
             ),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -114,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: AppTextStyles.title.copyWith(fontSize: 17),
                 ),
                 const SizedBox(width: 2),
-                const Icon(Icons.unfold_more_rounded, color: AppColors.muted, size: 16),
+                const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.muted, size: 18),
               ],
             ),
           ],
@@ -122,92 +126,199 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.segment_rounded, color: AppColors.primaryText, size: 22),
+          icon: const Icon(Icons.menu_rounded, color: AppColors.primaryText, size: 22),
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-          tooltip: 'Menu',
         ),
         const SizedBox(width: 4),
       ],
     );
   }
 
-  // ── Balance Section ───────────────────────────────────────────────────────
-  Widget _buildBalanceSection(double balance, double income, double expense) {
+  // ── Balance Card — PREMIUM GRADIENT ───────────────────────────────────────
+  Widget _buildBalanceCard(double balance, double income, double expense) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.md, 4, AppSpacing.md, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Total Saldo',
-            style: AppTextStyles.micro.copyWith(fontSize: 11, color: AppColors.secondaryText),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            CurrencyFormatterHelper.formatRupiah(balance),
-            style: AppTextStyles.balance,
-          ),
-          const SizedBox(height: 16),
-          // Inline income/expense chips
-          Row(
-            children: [
-              _buildStatPill(
-                label: 'Masuk',
-                amount: income,
-                icon: Icons.arrow_downward_rounded,
-                color: AppColors.success,
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, 4, AppSpacing.md, 20),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: AppGradients.balanceCard,
+          borderRadius: BorderRadius.circular(AppRadius.xxl),
+          boxShadow: AppColors.balanceShadow,
+        ),
+        child: Stack(
+          children: [
+            // Decorative circles untuk depth
+            Positioned(
+              top: -30,
+              right: -20,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.06),
+                ),
               ),
-              const SizedBox(width: 10),
-              _buildStatPill(
-                label: 'Keluar',
-                amount: expense,
-                icon: Icons.arrow_upward_rounded,
-                color: AppColors.error,
+            ),
+            Positioned(
+              bottom: -40,
+              right: 60,
+              child: Container(
+                width: 160,
+                height: 160,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.04),
+                ),
               ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          const Divider(height: 1, thickness: 1, color: AppColors.hairline),
-        ],
+            ),
+            Positioned(
+              top: 20,
+              right: 70,
+              child: Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.05),
+                ),
+              ),
+            ),
+
+            // Content
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Label
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              walletProvider.activeWallet?.name ?? 'Kas Utama',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Balance label
+                  Text('Total Saldo', style: AppTextStyles.balanceLabel),
+                  const SizedBox(height: 4),
+
+                  // Balance amount
+                  Text(
+                    CurrencyFormatterHelper.formatRupiah(balance),
+                    style: AppTextStyles.balance,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Divider tipis
+                  Container(height: 1, color: Colors.white.withValues(alpha: 0.15)),
+
+                  const SizedBox(height: 16),
+
+                  // Income / Expense row
+                  Row(
+                    children: [
+                      Expanded(child: _buildCardStat(
+                        label: 'Pemasukan',
+                        amount: income,
+                        icon: Icons.arrow_downward_rounded,
+                        isIncome: true,
+                      )),
+                      Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.15)),
+                      Expanded(child: _buildCardStat(
+                        label: 'Pengeluaran',
+                        amount: expense,
+                        icon: Icons.arrow_upward_rounded,
+                        isIncome: false,
+                      )),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildStatPill({
+  Widget _buildCardStat({
     required String label,
     required double amount,
     required IconData icon,
-    required Color color,
+    required bool isIncome,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(40),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(color: color.withOpacity(0.12), shape: BoxShape.circle),
-            child: Icon(icon, color: color, size: 12),
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: isIncome
+                  ? Colors.white.withValues(alpha: 0.18)
+                  : Colors.white.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              isIncome ? Icons.south_rounded : Icons.north_rounded,
+              color: Colors.white,
+              size: 14,
+            ),
           ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: AppTextStyles.micro.copyWith(color: AppColors.secondaryText)),
-              Text(
-                CurrencyFormatterHelper.formatRupiah(amount),
-                style: AppTextStyles.caption.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primaryText,
-                  fontSize: 11,
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.balanceLabel.copyWith(fontSize: 9),
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  CurrencyFormatterHelper.formatRupiah(amount),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -231,8 +342,8 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
         children: [
           ...filters.map((f) {
-            final label = f['label'] as String;
-            final icon  = f['icon']  as IconData;
+            final label    = f['label'] as String;
+            final icon     = f['icon']  as IconData;
             final isActive = transactionProvider.statPeriod == label;
             return _buildFilterPill(label: label, icon: icon, isActive: isActive);
           }),
@@ -247,12 +358,13 @@ class _HomeScreenState extends State<HomeScreen> {
       child: GestureDetector(
         onTap: () => transactionProvider.setStatPeriod(label),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 180),
           curve: Curves.easeInOut,
           padding: EdgeInsets.symmetric(horizontal: isActive ? 14 : 10, vertical: 0),
           decoration: BoxDecoration(
-            color: isActive ? AppColors.accent : AppColors.cardBg,
+            color: isActive ? AppColors.accent : AppColors.surface,
             borderRadius: BorderRadius.circular(40),
+            boxShadow: isActive ? [] : AppColors.softShadow,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -266,7 +378,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: 0.1,
                   ),
                 ),
               ],
@@ -280,12 +391,29 @@ class _HomeScreenState extends State<HomeScreen> {
   // ── List Header ───────────────────────────────────────────────────────────
   Widget _buildListHeader(int count) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.md, 20, AppSpacing.md, 8),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, 16, AppSpacing.md, 8),
       child: Row(
         children: [
-          Text('Transaksi', style: AppTextStyles.subtitle.copyWith(color: AppColors.primaryText, fontWeight: FontWeight.w700)),
+          Text(
+            'Transaksi',
+            style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700),
+          ),
           const Spacer(),
-          Text('$count item', style: AppTextStyles.micro),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            decoration: BoxDecoration(
+              color: AppColors.accentLight,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '$count item',
+              style: TextStyle(
+                color: AppColors.accentDark,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -300,31 +428,45 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.receipt_long_outlined, size: 52, color: AppColors.border),
-              const SizedBox(height: 12),
-              Text('Belum ada transaksi.', style: AppTextStyles.caption),
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: AppColors.accentLight,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.receipt_long_outlined, size: 30, color: AppColors.accent),
+              ),
+              const SizedBox(height: 14),
+              Text('Belum ada transaksi', style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 4),
+              Text('Tambahkan pemasukan atau pengeluaran', style: AppTextStyles.caption),
             ],
           ),
         ),
       );
     }
 
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final tx = transactions[index];
-          final isLast = index == transactions.length - 1;
-          return _buildTransactionRow(tx, isLast);
-        },
-        childCount: transactions.length,
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final tx     = transactions[index];
+            final isLast = index == transactions.length - 1;
+            return _buildTransactionCard(tx, isLast);
+          },
+          childCount: transactions.length,
+        ),
       ),
     );
   }
 
-  Widget _buildTransactionRow(TransactionModel tx, bool isLast) {
-    final isIncome = tx.type == TransactionType.pemasukan;
-    final catColor = CategoryHelper.getCategoryColor(tx.category);
-    final catIcon  = CategoryHelper.getCategoryIcon(tx.category);
+  Widget _buildTransactionCard(TransactionModel tx, bool isLast) {
+    final isIncome  = tx.type == TransactionType.pemasukan;
+    final catColor  = CategoryHelper.getCategoryColor(tx.category);
+    final catIcon   = CategoryHelper.getCategoryIcon(tx.category);
+    final amtColor  = isIncome ? AppColors.success : AppColors.error;
 
     return Dismissible(
       key: Key(tx.id),
@@ -332,27 +474,36 @@ class _HomeScreenState extends State<HomeScreen> {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        color: AppColors.error.withOpacity(0.1),
-        child: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFE4E4),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+        child: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
       ),
       confirmDismiss: (_) => _confirmDelete(tx),
       child: Container(
-        color: AppColors.surface,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 12),
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          boxShadow: AppColors.softShadow,
+        ),
         child: Row(
           children: [
-            // Square category icon
+            // Square icon — rounded corners, tinted bg
             Container(
-              width: 40,
-              height: 40,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
-                color: catColor.withOpacity(0.10),
-                borderRadius: BorderRadius.circular(10),
+                color: catColor.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(catIcon, color: catColor, size: 18),
+              child: Icon(catIcon, color: catColor, size: 19),
             ),
             const SizedBox(width: 12),
-            // Center text
+            // Center
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,27 +514,26 @@ class _HomeScreenState extends State<HomeScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (tx.title.isNotEmpty)
+                  if (tx.title.isNotEmpty) ...[
+                    const SizedBox(height: 1),
                     Text(
                       tx.title,
                       style: AppTextStyles.micro.copyWith(color: AppColors.secondaryText, fontSize: 11),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+                  ],
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            // Right side
+            const SizedBox(width: 10),
+            // Right
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '${isIncome ? '+' : '-'} ${CurrencyFormatterHelper.formatRupiah(tx.amount)}',
-                  style: AppTextStyles.amount.copyWith(
-                    color: isIncome ? AppColors.success : AppColors.error,
-                    fontSize: 14,
-                  ),
+                  '${isIncome ? '+' : '−'} ${CurrencyFormatterHelper.formatRupiah(tx.amount)}',
+                  style: AppTextStyles.amount.copyWith(color: amtColor, fontSize: 14),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -401,28 +551,33 @@ class _HomeScreenState extends State<HomeScreen> {
   // ── Bottom Bar ────────────────────────────────────────────────────────────
   Widget _buildBottomBar() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.hairline, width: 1)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF111827).withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
-            child: _buildBottomButton(
+            child: _buildBottomBtn(
               label: '+ Pemasukan',
-              bg: AppColors.accentLight,
-              fg: AppColors.accentDark,
+              gradient: AppGradients.emerald,
+              textColor: Colors.white,
               onTap: () => _navigateToInput('Pemasukan'),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
-            child: _buildBottomButton(
+            child: _buildBottomBtn(
               label: '− Pengeluaran',
-              bg: const Color(0xFFFFF1F2),
-              fg: AppColors.error,
+              bg: const Color(0xFFFFF0F0),
+              textColor: AppColors.error,
               onTap: () => _navigateToInput('Pengeluaran'),
             ),
           ),
@@ -431,21 +586,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBottomButton({
+  Widget _buildBottomBtn({
     required String label,
-    required Color bg,
-    required Color fg,
+    LinearGradient? gradient,
+    Color? bg,
+    required Color textColor,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         height: 48,
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(40)),
+        decoration: BoxDecoration(
+          gradient: gradient,
+          color: bg,
+          borderRadius: BorderRadius.circular(40),
+          boxShadow: gradient != null ? AppColors.balanceShadow.map((s) => BoxShadow(
+            color: s.color.withValues(alpha: 0.15),
+            blurRadius: s.blurRadius / 2,
+            offset: s.offset / 2,
+          )).toList() : null,
+        ),
         alignment: Alignment.center,
         child: Text(
           label,
-          style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 13),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.w700, fontSize: 13),
         ),
       ),
     );

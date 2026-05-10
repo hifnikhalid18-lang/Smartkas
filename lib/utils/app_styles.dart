@@ -1,56 +1,73 @@
 import 'package:flutter/material.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// COLOR SYSTEM
-// Neutral-first palette. Emerald is a brand accent, not decoration.
+// SMARTKAS FINANCE PREMIUM — Color System
+// Emerald Finance Theme
 // ─────────────────────────────────────────────────────────────────────────────
 class AppColors {
-  // Backgrounds
-  static const Color background  = Color(0xFFF8FAFC); // Slate 50
-  static const Color surface     = Colors.white;
-  static const Color cardBg      = Color(0xFFF1F5F9); // Slate 100 — chip/pill bg
+  // ── Backgrounds ────────────────────────────────────────────────────────────
+  static const Color background = Color(0xFFF4F7F5); // off-white kehijauan — bukan putih polos
+  static const Color surface    = Color(0xFFFFFFFF); // card surface — clean white
+  static const Color cardBg     = Color(0xFFF0F4F2); // pill / chip background (sedikit hijau)
 
-  // Text
-  static const Color primaryText   = Color(0xFF0F172A); // Slate 900
-  static const Color secondaryText = Color(0xFF64748B); // Slate 500
-  static const Color muted         = Color(0xFF94A3B8); // Slate 400 — dates, hints
+  // ── Text ───────────────────────────────────────────────────────────────────
+  static const Color primaryText   = Color(0xFF111827); // hampir hitam
+  static const Color secondaryText = Color(0xFF6B7280); // subtext abu
+  static const Color muted         = Color(0xFF9CA3AF); // placeholder, tanggal, hint
 
-  // Structural
-  static const Color border    = Color(0xFFE2E8F0); // Slate 200
-  static const Color hairline  = Color(0xFFF1F5F9); // Slate 100 — thin separators
+  // ── Structure ──────────────────────────────────────────────────────────────
+  static const Color border   = Color(0xFFE5E7EB); // pembatas tipis
+  static const Color hairline = Color(0xFFF0F4F2); // separator sangat tipis
 
-  // Brand — Emerald (use sparingly)
-  static const Color accent      = Color(0xFF10B981); // Emerald 500
-  static const Color accentLight = Color(0xFFECFDF5); // Emerald 50
-  static const Color accentDark  = Color(0xFF047857); // Emerald 700
+  // ── Brand — Emerald Teal (UTAMA) ──────────────────────────────────────────
+  static const Color accent      = Color(0xFF14B88A); // primary brand color
+  static const Color accentLight = Color(0xFFE8F8F3); // tint untuk chip/bg
+  static const Color accentDark  = Color(0xFF0F766E); // secondary / pressed state
 
-  // Semantic
-  static const Color success = Color(0xFF10B981); // Emerald
-  static const Color error   = Color(0xFFF43F5E); // Rose 500
-  static const Color warning = Color(0xFFF59E0B); // Amber 500
+  // ── Semantic ───────────────────────────────────────────────────────────────
+  static const Color success = Color(0xFF1FA971); // income — hijau teal sedikit lebih gelap
+  static const Color error   = Color(0xFFE25555); // expense — merah tidak terlalu neon
+  static const Color warning = Color(0xFFF59E0B); // amber
 
-  // Shadows — very subtle
+  // ── Shadows ────────────────────────────────────────────────────────────────
+  // Semua shadow sangat tipis — kuncinya di offset + blur, bukan opacity besar
   static List<BoxShadow> softShadow = [
     BoxShadow(
-      color: const Color(0xFF0F172A).withOpacity(0.04),
-      blurRadius: 8,
+      color: const Color(0xFF0F766E).withValues(alpha: 0.06),
+      blurRadius: 10,
       offset: const Offset(0, 2),
+    ),
+    BoxShadow(
+      color: const Color(0xFF111827).withValues(alpha: 0.03),
+      blurRadius: 4,
+      offset: const Offset(0, 1),
     ),
   ];
 
   static List<BoxShadow> cardShadow = [
     BoxShadow(
-      color: const Color(0xFF0F172A).withOpacity(0.06),
-      blurRadius: 12,
+      color: const Color(0xFF0F766E).withValues(alpha: 0.08),
+      blurRadius: 16,
       offset: const Offset(0, 4),
+    ),
+    BoxShadow(
+      color: const Color(0xFF111827).withValues(alpha: 0.04),
+      blurRadius: 6,
+      offset: const Offset(0, 2),
     ),
   ];
 
-  static List<BoxShadow> floatingShadow = [
+  // Shadow untuk balance card — emerald-tinted
+  static List<BoxShadow> balanceShadow = [
     BoxShadow(
-      color: const Color(0xFF10B981).withOpacity(0.18),
-      blurRadius: 20,
-      offset: const Offset(0, 8),
+      color: const Color(0xFF14B88A).withValues(alpha: 0.28),
+      blurRadius: 28,
+      offset: const Offset(0, 12),
+    ),
+    BoxShadow(
+      color: const Color(0xFF0F766E).withValues(alpha: 0.15),
+      blurRadius: 8,
+      offset: const Offset(0, 4),
     ),
   ];
 }
@@ -59,39 +76,60 @@ class AppColors {
 // GRADIENTS
 // ─────────────────────────────────────────────────────────────────────────────
 class AppGradients {
-  // Dark navy gradient for the balance section — sophisticated, not garish
-  static const LinearGradient balanceGrad = LinearGradient(
+  // Balance card — premium emerald finance gradient
+  static const LinearGradient balanceCard = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+    colors: [
+      Color(0xFF0F9D7A), // teal emerald dalam
+      Color(0xFF14B88A), // emerald utama
+      Color(0xFF36C2A4), // emerald terang di kanan bawah
+    ],
+    stops: [0.0, 0.5, 1.0],
   );
 
-  // Emerald — only for FABs / primary CTAs
-  static const LinearGradient emerald = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFF10B981), Color(0xFF059669)],
-  );
-
-  // Drawer header
+  // Drawer header — dark slate premium
   static const LinearGradient navySlate = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF1E293B), Color(0xFF334155)],
+    colors: [Color(0xFF0F766E), Color(0xFF134E4A)],
+  );
+
+  // FAB / CTA
+  static const LinearGradient emerald = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF14B88A), Color(0xFF0F766E)],
+  );
+
+  // Accent background subtle (untuk carousel card aktif)
+  static const LinearGradient accentSubtle = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF0F9D7A), Color(0xFF0F766E)],
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPOGRAPHY
+// Premium finance app — jelas, bersih, hierarki kuat
 // ─────────────────────────────────────────────────────────────────────────────
 class AppTextStyles {
-  // Balance — the most important number on screen
+  // Balance — angka terpenting di layar
   static const TextStyle balance = TextStyle(
-    fontSize: 34,
-    fontWeight: FontWeight.w700,
-    color: AppColors.primaryText,
-    letterSpacing: -1.0,
-    height: 1.1,
+    fontSize: 36,
+    fontWeight: FontWeight.w800,
+    color: Colors.white,
+    letterSpacing: -1.5,
+    height: 1.0,
+  );
+
+  // Balance label (di dalam card)
+  static const TextStyle balanceLabel = TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    color: Color(0xCCFFFFFF), // putih 80%
+    letterSpacing: 0.5,
   );
 
   static const TextStyle display = TextStyle(
@@ -104,7 +142,7 @@ class AppTextStyles {
   static const TextStyle title = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w700,
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
     color: AppColors.primaryText,
   );
 
@@ -121,7 +159,6 @@ class AppTextStyles {
     color: AppColors.primaryText,
   );
 
-  // Monetary amounts in list
   static const TextStyle amount = TextStyle(
     fontSize: 15,
     fontWeight: FontWeight.w700,
@@ -135,7 +172,6 @@ class AppTextStyles {
     color: AppColors.secondaryText,
   );
 
-  // Micro label — dates, badges, tiny info
   static const TextStyle micro = TextStyle(
     fontSize: 10,
     fontWeight: FontWeight.w500,
@@ -143,7 +179,6 @@ class AppTextStyles {
     letterSpacing: 0.2,
   );
 
-  // Section header — uppercase tracking (iOS grouping style)
   static const TextStyle sectionLabel = TextStyle(
     fontSize: 11,
     fontWeight: FontWeight.w600,
@@ -153,7 +188,7 @@ class AppTextStyles {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SPACING — intentionally varied, not all the same
+// SPACING
 // ─────────────────────────────────────────────────────────────────────────────
 class AppSpacing {
   static const double tiny = 4.0;
@@ -172,9 +207,11 @@ class AppRadius {
   static const double sm = 8.0;
   static const double md = 12.0;
   static const double lg = 16.0;
-  static const double xl = 24.0;
-  static BorderRadius roundedSm = BorderRadius.circular(sm);
-  static BorderRadius roundedMd = BorderRadius.circular(md);
-  static BorderRadius roundedLg = BorderRadius.circular(lg);
-  static BorderRadius roundedXl = BorderRadius.circular(xl);
+  static const double xl = 20.0;
+  static const double xxl = 28.0;
+  static BorderRadius roundedSm  = BorderRadius.circular(sm);
+  static BorderRadius roundedMd  = BorderRadius.circular(md);
+  static BorderRadius roundedLg  = BorderRadius.circular(lg);
+  static BorderRadius roundedXl  = BorderRadius.circular(xl);
+  static BorderRadius roundedXxl = BorderRadius.circular(xxl);
 }
