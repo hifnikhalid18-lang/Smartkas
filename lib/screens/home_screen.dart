@@ -10,6 +10,7 @@ import '../utils/currency_formatter.dart';
 import '../utils/app_styles.dart';
 import '../utils/category_helper.dart';
 import 'package:intl/intl.dart';
+import '../widgets/startup_background.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -55,9 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, _) {
           return Scaffold(
             key: _scaffoldKey,
-            backgroundColor: AppColors.background,
+            backgroundColor: Colors.transparent,
+            extendBodyBehindAppBar: true,
             drawer: const AppDrawer(),
-            body: ListenableBuilder(
+            body: StartupBackground(
+              child: ListenableBuilder(
               listenable: transactionProvider,
               builder: (context, _) {
                 final balance      = transactionProvider.totalBalance;
@@ -77,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
+            ),
             bottomNavigationBar: _buildBottomBar(),
           );
         },
@@ -87,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ── AppBar ────────────────────────────────────────────────────────────────
   Widget _buildSliverAppBar() {
     return SliverAppBar(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       floating: true,
@@ -277,23 +281,23 @@ class _HomeScreenState extends State<HomeScreen> {
     required IconData icon,
     required bool isIncome,
   }) {
+    final color = isIncome ? AppColors.success : AppColors.error;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
-              color: isIncome
-                  ? Colors.white.withValues(alpha: 0.18)
-                  : Colors.white.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(8),
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
-              isIncome ? Icons.south_rounded : Icons.north_rounded,
-              color: Colors.white,
-              size: 14,
+              icon,
+              color: color,
+              size: 16,
             ),
           ),
           const SizedBox(width: 10),
@@ -303,14 +307,14 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   label,
-                  style: AppTextStyles.balanceLabel.copyWith(fontSize: 9),
+                  style: AppTextStyles.balanceLabel.copyWith(fontSize: 10),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   CurrencyFormatterHelper.formatRupiah(amount),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.3,
                   ),
@@ -567,7 +571,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: _buildBottomBtn(
               label: '+ Pemasukan',
-              gradient: AppGradients.emerald,
+              gradient: AppGradients.primaryCTA,
               textColor: Colors.white,
               onTap: () => _navigateToInput('Pemasukan'),
             ),

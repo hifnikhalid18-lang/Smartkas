@@ -3,6 +3,7 @@ import '../providers/savings_provider.dart';
 import '../models/savings_goal.dart';
 import '../utils/app_styles.dart';
 import '../utils/currency_formatter.dart';
+import '../widgets/startup_background.dart';
 
 class SavingsScreen extends StatelessWidget {
   const SavingsScreen({super.key});
@@ -10,34 +11,32 @@ class SavingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text('Target Menabung', style: AppTextStyles.title.copyWith(fontSize: 17)),
       ),
-      body: ListenableBuilder(
-        listenable: savingsProvider,
-        builder: (context, _) {
-          final goals = savingsProvider.goals;
-          if (savingsProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (goals.isEmpty) {
-            return _buildEmpty(context);
-          }
-          return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 100),
-            itemCount: goals.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) => _buildGoalCard(context, goals[index]),
-          );
-        },
+      body: StartupBackground(
+        child: ListenableBuilder(
+          listenable: savingsProvider,
+          builder: (context, _) {
+            final goals = savingsProvider.goals;
+            if (savingsProvider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (goals.isEmpty) {
+              return _buildEmpty(context);
+            }
+            return ListView.separated(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 100),
+              itemCount: goals.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) => _buildGoalCard(context, goals[index]),
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddGoalSheet(context),

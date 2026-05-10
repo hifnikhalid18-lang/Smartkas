@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../providers/wallet_provider.dart';
 import '../models/wallet.dart';
 import '../utils/app_styles.dart';
+import '../widgets/startup_background.dart';
 
 class WalletManagementScreen extends StatelessWidget {
   const WalletManagementScreen({super.key});
@@ -9,10 +10,7 @@ class WalletManagementScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
@@ -28,8 +26,9 @@ class WalletManagementScreen extends StatelessWidget {
           const SizedBox(width: 4),
         ],
       ),
-      body: ListenableBuilder(
-        listenable: walletProvider,
+      body: StartupBackground(
+        child: ListenableBuilder(
+          listenable: walletProvider,
         builder: (context, _) {
           final wallets = walletProvider.wallets;
           return CustomScrollView(
@@ -63,6 +62,7 @@ class WalletManagementScreen extends StatelessWidget {
           );
         },
       ),
+      ),
     );
   }
 
@@ -92,7 +92,7 @@ class WalletManagementScreen extends StatelessWidget {
         width: 160,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          gradient: isActive ? AppGradients.balanceGrad : null,
+          gradient: isActive ? AppGradients.accentSubtle : null,
           color: isActive ? null : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.lg),
           boxShadow: isActive ? AppColors.cardShadow : AppColors.softShadow,

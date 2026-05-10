@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/app_styles.dart';
 import '../widgets/donut_chart_widget.dart';
+import '../widgets/startup_background.dart';
 import '../utils/category_helper.dart';
 import '../utils/currency_formatter.dart';
 
@@ -11,10 +12,7 @@ class StatisticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
@@ -26,8 +24,9 @@ class StatisticsScreen extends StatelessWidget {
           const SizedBox(width: 4),
         ],
       ),
-      body: ListenableBuilder(
-        listenable: transactionProvider,
+      body: StartupBackground(
+        child: ListenableBuilder(
+          listenable: transactionProvider,
         builder: (context, _) {
           final income   = transactionProvider.monthlyIncome;
           final expense  = transactionProvider.monthlyExpense;
@@ -54,6 +53,7 @@ class StatisticsScreen extends StatelessWidget {
             ],
           );
         },
+      ),
       ),
     );
   }

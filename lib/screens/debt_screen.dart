@@ -4,6 +4,7 @@ import '../models/debt.dart';
 import '../utils/app_styles.dart';
 import '../utils/currency_formatter.dart';
 import 'package:intl/intl.dart';
+import '../widgets/startup_background.dart';
 
 class DebtScreen extends StatefulWidget {
   const DebtScreen({super.key});
@@ -31,31 +32,32 @@ class _DebtScreenState extends State<DebtScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: _buildAppBar(),
-      body: ListenableBuilder(
-        listenable: debtProvider,
-        builder: (context, _) {
-          final all    = debtProvider.debts;
-          final hutang = all.where((d) => d.type == DebtType.hutang).toList();
-          final piutang = all.where((d) => d.type == DebtType.piutang).toList();
+      body: StartupBackground(
+        child: ListenableBuilder(
+          listenable: debtProvider,
+          builder: (context, _) {
+            final all = debtProvider.debts;
+            final hutang = all.where((d) => d.type == DebtType.hutang).toList();
+            final piutang = all.where((d) => d.type == DebtType.piutang).toList();
 
-          return Column(
-            children: [
-              _buildSummaryStrip(),
-              _buildTabBar(),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildDebtList(hutang, 'hutang'),
-                    _buildDebtList(piutang, 'piutang'),
-                  ],
+            return Column(
+              children: [
+                _buildSummaryStrip(),
+                _buildTabBar(),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildDebtList(hutang, 'hutang'),
+                      _buildDebtList(piutang, 'piutang'),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
       floatingActionButton: _buildFAB(),
     );
@@ -64,14 +66,18 @@ class _DebtScreenState extends State<DebtScreen>
   // ── AppBar ────────────────────────────────────────────────────────────────
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: AppColors.background,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
         onPressed: () => Navigator.pop(context),
       ),
-      title: Text('Hutang Piutang', style: AppTextStyles.title.copyWith(fontSize: 17)),
+      title: Text('Hutang & Piutang', style: AppTextStyles.title.copyWith(fontSize: 17)),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, 12),
+          child: _buildTabBar(),
+        ),
+      ),
     );
   }
 

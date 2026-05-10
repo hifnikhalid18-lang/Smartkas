@@ -6,6 +6,8 @@ import '../utils/currency_formatter.dart';
 import '../utils/app_styles.dart';
 import '../widgets/category_dropdown.dart';
 import '../widgets/reusable_card.dart';
+import '../utils/snackbar_helper.dart';
+import '../utils/category_helper.dart';
 
 class InputScreen extends StatefulWidget {
   final String type;
@@ -106,14 +108,7 @@ class _InputScreenState extends State<InputScreen> {
         category: _selectedCategory,
       );
       transactionProvider.updateTransaction(updatedTransaction);
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Transaksi berhasil diperbarui'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: AppColors.primaryText,
-        ),
-      );
+      SnackbarHelper.showSuccess(context, 'Transaksi berhasil diperbarui');
     } else {
       final transaction = TransactionModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -124,14 +119,7 @@ class _InputScreenState extends State<InputScreen> {
         category: _selectedCategory,
       );
       transactionProvider.addTransaction(transaction);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Transaksi berhasil ditambahkan'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: AppColors.primaryText,
-        ),
-      );
+      SnackbarHelper.showSuccess(context, 'Transaksi berhasil ditambahkan');
     }
 
     Navigator.pop(context);
@@ -165,13 +153,7 @@ class _InputScreenState extends State<InputScreen> {
 
               _buildSectionTitle('KATEGORI'),
               const SizedBox(height: AppSpacing.sm),
-              CategoryDropdown(
-                type: _selectedType,
-                selectedCategory: _selectedCategory,
-                onChanged: (value) {
-                  if (value != null) setState(() => _selectedCategory = value);
-                },
-              ),
+              _buildCategoryChips(),
               const SizedBox(height: AppSpacing.lg),
 
               _buildSectionTitle('TANGGAL'),
@@ -325,10 +307,10 @@ class _InputScreenState extends State<InputScreen> {
       child: GestureDetector(
         onTap: () => setState(() {
           _selectedType = type;
-          // Reset category to default of new type
-          _selectedCategory = 'Lainnya';
+          _selectedCategory = CategoryHelper.getCategoriesByType(type).first;
         }),
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
             color: isSelected ? AppColors.accent : AppColors.surface,
@@ -351,6 +333,59 @@ class _InputScreenState extends State<InputScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCategoryChips() {
+    final categories = CategoryHelper.getCategoriesByType(_selectedType);
+    
+    // Ensure selected category is valid
+    if (!categories.contains(_selectedCategory)) {
+      _selectedCategory = categories.first;
+    }
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 10,
+      children: categories.map((category) {
+        final isSelected = _selectedCategory == category;
+        final catColor = CategoryHelper.getCategoryColor(category);
+        
+        return GestureDetector(
+          onTap: () => setState(() => _selectedCategory = category),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.accentLight : AppColors.surface,
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: isSelected ? AppColors.accent : AppColors.border.withOpacity(0.5),
+                width: isSelected ? 1.5 : 1.0,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  CategoryHelper.getCategoryIcon(category),
+                  size: 16,
+                  color: isSelected ? AppColors.accentDark : catColor,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  category,
+                  style: TextStyle(
+                    color: isSelected ? AppColors.accentDark : AppColors.primaryText,
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

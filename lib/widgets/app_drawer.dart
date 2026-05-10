@@ -63,7 +63,7 @@ class AppDrawer extends StatelessWidget {
             left: 20,
             right: 20,
           ),
-          decoration: const BoxDecoration(gradient: AppGradients.navySlate),
+          decoration: const BoxDecoration(gradient: AppGradients.balanceCard),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

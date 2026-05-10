@@ -4,9 +4,12 @@ import '../providers/transaction_provider.dart';
 import '../widgets/transaction_item.dart';
 import '../widgets/status_widgets.dart';
 import '../widgets/reusable_card.dart';
+
+import '../widgets/startup_background.dart';
 import '../models/transaction.dart';
 import '../utils/currency_formatter.dart';
 import '../utils/app_styles.dart';
+import '../utils/snackbar_helper.dart';
 import '../services/backup_export_service.dart';
 import '../widgets/wallet_selector.dart';
 import '../providers/wallet_provider.dart';
@@ -46,7 +49,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
       listenable: walletProvider,
       builder: (context, _) {
         return Scaffold(
-          backgroundColor: AppColors.background,
           appBar: AppBar(
             title: const Text('Riwayat Transaksi'),
             actions: [
@@ -59,164 +61,167 @@ class _HistoryScreenState extends State<HistoryScreen> {
               const SizedBox(width: AppSpacing.sm),
             ],
           ),
-          body: ListenableBuilder(
-        listenable: transactionProvider,
-        builder: (context, _) {
-          final allTransactions = transactionProvider.transactions;
-          final balance = transactionProvider.totalBalance;
-          final income = transactionProvider.totalIncome;
-          final expense = transactionProvider.totalExpense;
+          body: StartupBackground(
+            child: ListenableBuilder(
+              listenable: transactionProvider,
+              builder: (context, _) {
+                final allTransactions = transactionProvider.transactions;
+                final balance = transactionProvider.totalBalance;
+                final income = transactionProvider.totalIncome;
+                final expense = transactionProvider.totalExpense;
 
-          final filteredTransactions = transactionProvider.filteredTransactions.where((tx) {
-            final query = _searchQuery.toLowerCase();
-            return tx.title.toLowerCase().contains(query) ||
-                   tx.amount.toString().contains(query) ||
-                   tx.category.toLowerCase().contains(query) ||
-                   tx.type.name.toLowerCase().contains(query);
-          }).toList();
+                final filteredTransactions = transactionProvider.filteredTransactions.where((tx) {
+                  final query = _searchQuery.toLowerCase();
+                  return tx.title.toLowerCase().contains(query) ||
+                         tx.amount.toString().contains(query) ||
+                         tx.category.toLowerCase().contains(query) ||
+                         tx.type.name.toLowerCase().contains(query);
+                }).toList();
 
-          final Map<String, List<TransactionModel>> groupedTransactions = {};
-          for (var tx in filteredTransactions) {
-            final dateKey = DateFormat('dd MMMM yyyy').format(tx.date);
-            if (!groupedTransactions.containsKey(dateKey)) {
-              groupedTransactions[dateKey] = [];
-            }
-            groupedTransactions[dateKey]!.add(tx);
-          }
+                final Map<String, List<TransactionModel>> groupedTransactions = {};
+                for (var tx in filteredTransactions) {
+                  final dateKey = DateFormat('dd MMMM yyyy').format(tx.date);
+                  if (!groupedTransactions.containsKey(dateKey)) {
+                    groupedTransactions[dateKey] = [];
+                  }
+                  groupedTransactions[dateKey]!.add(tx);
+                }
 
-          final dateKeys = groupedTransactions.keys.toList();
+                final dateKeys = groupedTransactions.keys.toList();
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: Row(
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) => setState(() => _searchQuery = value),
-                        decoration: InputDecoration(
-                          hintText: 'Cari transaksi...',
-                          hintStyle: AppTextStyles.caption.copyWith(color: AppColors.secondaryText.withOpacity(0.5)),
-                          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.secondaryText),
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.border.withOpacity(0.3)),
-                            borderRadius: AppRadius.roundedMd,
+                    Padding(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              onChanged: (value) => setState(() => _searchQuery = value),
+                              decoration: InputDecoration(
+                                hintText: 'Cari transaksi...',
+                                hintStyle: AppTextStyles.caption.copyWith(color: AppColors.secondaryText.withOpacity(0.5)),
+                                prefixIcon: const Icon(Icons.search_rounded, color: AppColors.secondaryText),
+                                filled: true,
+                                fillColor: AppColors.surface,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: AppColors.border.withOpacity(0.3)),
+                                  borderRadius: AppRadius.roundedMd,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+                                  borderRadius: AppRadius.roundedMd,
+                                ),
+                              ),
+                            ),
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
-                            borderRadius: AppRadius.roundedMd,
-                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          _buildCalendarButton(),
+                        ],
+                      ),
+                    ),
+
+                    _buildFilterChips(),
+                    const SizedBox(height: AppSpacing.md),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      child: ReusableCard(
+                        margin: EdgeInsets.zero,
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        child: Column(
+                          children: [
+                            _buildSummaryRow('TOTAL SALDO', CurrencyFormatterHelper.formatRupiah(balance), isBold: true),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                              child: Divider(color: AppColors.border, thickness: 0.5),
+                            ),
+                            _buildSummaryRow('Pemasukan', CurrencyFormatterHelper.formatRupiah(income), color: AppColors.success),
+                            const SizedBox(height: 6),
+                            _buildSummaryRow('Pengeluaran', CurrencyFormatterHelper.formatRupiah(expense), color: AppColors.error),
+                          ],
                         ),
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
-                    _buildCalendarButton(),
-                  ],
-                ),
-              ),
-
-              _buildFilterChips(),
-              const SizedBox(height: AppSpacing.md),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                child: ReusableCard(
-                  margin: EdgeInsets.zero,
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    children: [
-                      _buildSummaryRow('TOTAL SALDO', CurrencyFormatterHelper.formatRupiah(balance), isBold: true),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                        child: Divider(color: AppColors.border, thickness: 0.5),
-                      ),
-                      _buildSummaryRow('Pemasukan', CurrencyFormatterHelper.formatRupiah(income), color: AppColors.success),
-                      const SizedBox(height: 6),
-                      _buildSummaryRow('Pengeluaran', CurrencyFormatterHelper.formatRupiah(expense), color: AppColors.error),
-                    ],
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: AppSpacing.md),
-              
-              Expanded(
-                child: SafeDataWrapper(
-                  isLoading: transactionProvider.isLoading,
-                  isEmpty: filteredTransactions.isEmpty,
-                  emptyMessage: _searchQuery.isEmpty 
-                      ? 'Belum ada riwayat transaksi' 
-                      : 'Hasil pencarian tidak ditemukan',
-                  emptyIcon: _searchQuery.isEmpty 
-                      ? Icons.receipt_long_outlined 
-                      : Icons.search_off,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: dateKeys.length,
-                    itemBuilder: (context, index) {
-                      final dateKey = dateKeys[index];
-                      final items = groupedTransactions[dateKey]!;
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                            child: Row(
+                    
+                    const SizedBox(height: AppSpacing.md),
+                    
+                    Expanded(
+                      child: filteredTransactions.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  dateKey,
-                                  style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
-                                ),
-                                const Expanded(child: Divider(indent: AppSpacing.sm, color: AppColors.border)),
+                                Icon(_searchQuery.isEmpty ? Icons.receipt_long_outlined : Icons.search_off, size: 48, color: AppColors.muted),
+                                const SizedBox(height: 12),
+                                Text(_searchQuery.isEmpty ? 'Belum ada riwayat transaksi' : 'Hasil pencarian tidak ditemukan', style: AppTextStyles.caption),
                               ],
                             ),
-                          ),
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: items.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                            itemBuilder: (context, i) {
-                              final tx = items[i];
-                              return TransactionItem(
-                                transaction: tx,
-                                onDelete: () => _showDeleteDialog(context, tx),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => InputScreen(
-                                        type: tx.type == TransactionType.pemasukan ? 'Pemasukan' : 'Pengeluaran',
-                                        transactionToEdit: tx,
+                          )
+                        : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: dateKeys.length,
+                          itemBuilder: (context, index) {
+                            final dateKey = dateKeys[index];
+                            final items = groupedTransactions[dateKey]!;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        dateKey,
+                                        style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
                                       ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+                                      const Expanded(child: Divider(indent: AppSpacing.sm, color: AppColors.border)),
+                                    ],
+                                  ),
+                                ),
+                                ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: items.length,
+                                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                                  itemBuilder: (context, i) {
+                                    final tx = items[i];
+                                    return TransactionItem(
+                                      transaction: tx,
+                                      onDelete: () => _showDeleteDialog(context, tx),
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => InputScreen(
+                                              type: tx.type == TransactionType.pemasukan ? 'Pemasukan' : 'Pengeluaran',
+                                              transactionToEdit: tx,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+                              ],
+                            );
+                          },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
-  },
-);
   }
 
   Widget _buildCalendarButton() {
@@ -229,7 +234,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       child: IconButton(
         icon: const Icon(Icons.calendar_month_rounded, color: AppColors.accent),
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih tanggal dari Kalender Transaksi...')));
+          SnackbarHelper.showInfo(context, 'Pilih tanggal dari Kalender Transaksi...');
         },
       ),
     );
@@ -322,9 +327,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   bool success = await BackupExportService.masterRestore();
                   if (success && mounted) {
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Data berhasil dipulihkan!'), behavior: SnackBarBehavior.floating),
-                    );
+                    SnackbarHelper.showSuccess(context, 'Data berhasil dipulihkan!');
                   }
                 }
               ),
@@ -377,13 +380,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               onPressed: () {
                 transactionProvider.deleteTransaction(transaction);
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Transaksi berhasil dihapus'),
-                    backgroundColor: AppColors.primaryText,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+                SnackbarHelper.showSuccess(context, 'Transaksi berhasil dihapus');
               },
               child: const Text('Hapus', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
             ),

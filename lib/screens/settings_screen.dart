@@ -5,6 +5,7 @@ import '../providers/debt_provider.dart';
 import '../providers/savings_provider.dart';
 import '../utils/app_styles.dart';
 import 'theme_settings_screen.dart';
+import '../widgets/startup_background.dart';
 import 'pin_setup_screen.dart';
 import '../providers/security_provider.dart';
 import '../screens/backup_restore_screen.dart';
@@ -34,10 +35,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
@@ -45,8 +43,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         title: Text('Pengaturan', style: AppTextStyles.title.copyWith(fontSize: 17)),
       ),
-      body: ListenableBuilder(
-        listenable: Listenable.merge([settingsProvider, securityProvider]),
+      body: StartupBackground(
+        child: ListenableBuilder(
+          listenable: Listenable.merge([settingsProvider, securityProvider]),
         builder: (context, _) {
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
@@ -154,6 +153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           );
         },
+      ),
       ),
     );
   }

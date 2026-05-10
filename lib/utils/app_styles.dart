@@ -1,44 +1,46 @@
 import 'package:flutter/material.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SMARTKAS FINANCE PREMIUM — Color System
-// Emerald Finance Theme
+// SMARTKAS STARTUP PREMIUM — Color System
+// Modern Blue/Teal Startup Theme
 // ─────────────────────────────────────────────────────────────────────────────
 class AppColors {
   // ── Backgrounds ────────────────────────────────────────────────────────────
-  static const Color background = Color(0xFFF4F7F5); // off-white kehijauan — bukan putih polos
-  static const Color surface    = Color(0xFFFFFFFF); // card surface — clean white
-  static const Color cardBg     = Color(0xFFF0F4F2); // pill / chip background (sedikit hijau)
+  static const Color background = Color(0xFFF4F7FB); // Soft blue-white
+  static const Color surface    = Color(0xFFFFFFFF); // Clean white card
+  static const Color cardBg     = Color(0xFFF8FAFC); // Very light slate for inner elements
 
   // ── Text ───────────────────────────────────────────────────────────────────
-  static const Color primaryText   = Color(0xFF111827); // hampir hitam
-  static const Color secondaryText = Color(0xFF6B7280); // subtext abu
-  static const Color muted         = Color(0xFF9CA3AF); // placeholder, tanggal, hint
+  static const Color primaryText   = Color(0xFF1E293B); // Slate 800
+  static const Color secondaryText = Color(0xFF64748B); // Slate 500
+  static const Color muted         = Color(0xFF94A3B8); // Slate 400
 
   // ── Structure ──────────────────────────────────────────────────────────────
-  static const Color border   = Color(0xFFE5E7EB); // pembatas tipis
-  static const Color hairline = Color(0xFFF0F4F2); // separator sangat tipis
+  static const Color border   = Color(0xFFE2E8F0); // Slate 200
+  static const Color hairline = Color(0xFFF1F5F9); // Slate 100
 
-  // ── Brand — Emerald Teal (UTAMA) ──────────────────────────────────────────
-  static const Color accent      = Color(0xFF14B88A); // primary brand color
-  static const Color accentLight = Color(0xFFE8F8F3); // tint untuk chip/bg
-  static const Color accentDark  = Color(0xFF0F766E); // secondary / pressed state
+  // ── Brand — Blue/Teal/Purple ──────────────────────────────────────────────
+  static const Color accent      = Color(0xFF4F8CFF); // Primary Blue
+  static const Color accentLight = Color(0xFFEFF6FF); // Soft Blue Tint
+  static const Color accentDark  = Color(0xFF1D4ED8); // Deep Blue
+  
+  static const Color secondary   = Color(0xFF6DD3C7); // Soft Teal
+  static const Color tertiary    = Color(0xFFA78BFA); // Soft Purple (Accent 2)
 
   // ── Semantic ───────────────────────────────────────────────────────────────
-  static const Color success = Color(0xFF1FA971); // income — hijau teal sedikit lebih gelap
-  static const Color error   = Color(0xFFE25555); // expense — merah tidak terlalu neon
-  static const Color warning = Color(0xFFF59E0B); // amber
+  static const Color success = Color(0xFF22C55E); // Green 500
+  static const Color error   = Color(0xFFEF4444); // Red 500
+  static const Color warning = Color(0xFFF59E0B); // Amber 500
 
   // ── Shadows ────────────────────────────────────────────────────────────────
-  // Semua shadow sangat tipis — kuncinya di offset + blur, bukan opacity besar
   static List<BoxShadow> softShadow = [
     BoxShadow(
-      color: const Color(0xFF0F766E).withValues(alpha: 0.06),
+      color: const Color(0xFF64748B).withValues(alpha: 0.04),
       blurRadius: 10,
       offset: const Offset(0, 2),
     ),
     BoxShadow(
-      color: const Color(0xFF111827).withValues(alpha: 0.03),
+      color: const Color(0xFF64748B).withValues(alpha: 0.02),
       blurRadius: 4,
       offset: const Offset(0, 1),
     ),
@@ -46,26 +48,26 @@ class AppColors {
 
   static List<BoxShadow> cardShadow = [
     BoxShadow(
-      color: const Color(0xFF0F766E).withValues(alpha: 0.08),
+      color: const Color(0xFF4F8CFF).withValues(alpha: 0.06),
       blurRadius: 16,
       offset: const Offset(0, 4),
     ),
     BoxShadow(
-      color: const Color(0xFF111827).withValues(alpha: 0.04),
+      color: const Color(0xFF1E293B).withValues(alpha: 0.03),
       blurRadius: 6,
       offset: const Offset(0, 2),
     ),
   ];
 
-  // Shadow untuk balance card — emerald-tinted
+  // Shadow glow
   static List<BoxShadow> balanceShadow = [
     BoxShadow(
-      color: const Color(0xFF14B88A).withValues(alpha: 0.28),
-      blurRadius: 28,
+      color: const Color(0xFF4F8CFF).withValues(alpha: 0.25),
+      blurRadius: 24,
       offset: const Offset(0, 12),
     ),
     BoxShadow(
-      color: const Color(0xFF0F766E).withValues(alpha: 0.15),
+      color: const Color(0xFF6DD3C7).withValues(alpha: 0.10),
       blurRadius: 8,
       offset: const Offset(0, 4),
     ),
@@ -76,46 +78,45 @@ class AppColors {
 // GRADIENTS
 // ─────────────────────────────────────────────────────────────────────────────
 class AppGradients {
-  // Balance card — premium emerald finance gradient
+  // App Background — tidak dipakai jika menggunakan StartupBackground widget
+  static const LinearGradient appBackground = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFFF4F7FB),
+      Color(0xFFE2E8F0),
+    ],
+  );
+
+  // Balance card / Header — Modern Blue to Teal
   static const LinearGradient balanceCard = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFF0F9D7A), // teal emerald dalam
-      Color(0xFF14B88A), // emerald utama
-      Color(0xFF36C2A4), // emerald terang di kanan bawah
+      Color(0xFF4F8CFF), // Soft Blue
+      Color(0xFF6DD3C7), // Soft Teal
     ],
-    stops: [0.0, 0.5, 1.0],
   );
 
-  // Drawer header — dark slate premium
-  static const LinearGradient navySlate = LinearGradient(
+  // CTA / FAB
+  static const LinearGradient primaryCTA = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF0F766E), Color(0xFF134E4A)],
+    colors: [Color(0xFF4F8CFF), Color(0xFF3B82F6)],
   );
 
-  // FAB / CTA
-  static const LinearGradient emerald = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFF14B88A), Color(0xFF0F766E)],
-  );
-
-  // Accent background subtle (untuk carousel card aktif)
+  // Accent background subtle
   static const LinearGradient accentSubtle = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF0F9D7A), Color(0xFF0F766E)],
+    colors: [Color(0xFF4F8CFF), Color(0xFF6DD3C7)],
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPOGRAPHY
-// Premium finance app — jelas, bersih, hierarki kuat
 // ─────────────────────────────────────────────────────────────────────────────
 class AppTextStyles {
-  // Balance — angka terpenting di layar
   static const TextStyle balance = TextStyle(
     fontSize: 36,
     fontWeight: FontWeight.w800,
@@ -124,11 +125,10 @@ class AppTextStyles {
     height: 1.0,
   );
 
-  // Balance label (di dalam card)
   static const TextStyle balanceLabel = TextStyle(
     fontSize: 11,
     fontWeight: FontWeight.w500,
-    color: Color(0xCCFFFFFF), // putih 80%
+    color: Color(0xCCFFFFFF),
     letterSpacing: 0.5,
   );
 
@@ -181,14 +181,14 @@ class AppTextStyles {
 
   static const TextStyle sectionLabel = TextStyle(
     fontSize: 11,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     color: AppColors.muted,
-    letterSpacing: 0.8,
+    letterSpacing: 1.0,
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SPACING
+// SPACING & RADII
 // ─────────────────────────────────────────────────────────────────────────────
 class AppSpacing {
   static const double tiny = 4.0;
@@ -200,9 +200,6 @@ class AppSpacing {
   static const double xxl  = 48.0;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RADII
-// ─────────────────────────────────────────────────────────────────────────────
 class AppRadius {
   static const double sm = 8.0;
   static const double md = 12.0;
