@@ -4,6 +4,7 @@ import '../providers/transaction_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../utils/app_styles.dart';
 import '../widgets/reusable_card.dart';
+import '../widgets/startup_background.dart';
 
 class BackupRestoreScreen extends StatelessWidget {
   const BackupRestoreScreen({super.key});
@@ -11,74 +12,75 @@ class BackupRestoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Keamanan & Data'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildSectionHeader('BACKUP & RESTORE', Icons.cloud_done_rounded),
-            const SizedBox(height: 12),
-            _buildActionCard(
-              context,
-              'Master Backup (Semua Data)',
-              'Cadangkan semua kas, transaksi, hutang, dan target ke file JSON.',
-              Icons.backup_rounded,
-              Colors.blue,
-              () => BackupExportService.masterBackup(),
-            ),
-            _buildActionCard(
-              context,
-              'Pulihkan Data (Master Restore)',
-              'Impor data dari file backup JSON sebelumnya.',
-              Icons.settings_backup_restore_rounded,
-              AppColors.warning,
-              () async {
-                bool success = await BackupExportService.masterRestore();
-                if (success && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Data berhasil dipulihkan! Silakan restart aplikasi.'), behavior: SnackBarBehavior.floating),
-                  );
-                }
-              },
-            ),
-            
-            const SizedBox(height: 32),
-            _buildSectionHeader('EKSPOR LAPORAN', Icons.description_rounded),
-            const SizedBox(height: 12),
-            _buildActionCard(
-              context,
-              'Ekspor PDF (Buku Kas Aktif)',
-              'Download laporan dalam format dokumen PDF rapi.',
-              Icons.picture_as_pdf_rounded,
-              Colors.redAccent,
-              () => BackupExportService.exportToPDF(
-                transactionProvider.transactions, 
-                walletProvider.activeWallet?.name ?? 'Utama'
+      body: StartupBackground(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildSectionHeader('BACKUP & RESTORE', Icons.cloud_done_rounded),
+              const SizedBox(height: 12),
+              _buildActionCard(
+                context,
+                'Master Backup (Semua Data)',
+                'Cadangkan semua kas, transaksi, hutang, dan target ke file JSON.',
+                Icons.backup_rounded,
+                Colors.blue,
+                () => BackupExportService.masterBackup(),
               ),
-            ),
-            _buildActionCard(
-              context,
-              'Ekspor Excel (Buku Kas Aktif)',
-              'Download laporan dalam format tabel Excel (.xlsx).',
-              Icons.table_view_rounded,
-              Colors.green,
-              () => BackupExportService.exportToExcel(
-                transactionProvider.transactions, 
-                walletProvider.activeWallet?.name ?? 'Utama'
+              _buildActionCard(
+                context,
+                'Pulihkan Data (Master Restore)',
+                'Impor data dari file backup JSON sebelumnya.',
+                Icons.settings_backup_restore_rounded,
+                AppColors.warning,
+                () async {
+                  bool success = await BackupExportService.masterRestore();
+                  if (success && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Data berhasil dipulihkan! Silakan restart aplikasi.'), behavior: SnackBarBehavior.floating),
+                    );
+                  }
+                },
               ),
-            ),
-            
-            const SizedBox(height: 40),
-            const Text(
-              'Catatan: Data Anda disimpan secara lokal di perangkat ini. Lakukan backup secara rutin untuk menghindari kehilangan data.',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.caption,
-            ),
-          ],
+              
+              const SizedBox(height: 32),
+              _buildSectionHeader('EKSPOR LAPORAN', Icons.description_rounded),
+              const SizedBox(height: 12),
+              _buildActionCard(
+                context,
+                'Ekspor PDF (Buku Kas Aktif)',
+                'Download laporan dalam format dokumen PDF rapi.',
+                Icons.picture_as_pdf_rounded,
+                Colors.redAccent,
+                () => BackupExportService.exportToPDF(
+                  transactionProvider.transactions, 
+                  walletProvider.activeWallet?.name ?? 'Utama'
+                ),
+              ),
+              _buildActionCard(
+                context,
+                'Ekspor Excel (Buku Kas Aktif)',
+                'Download laporan dalam format tabel Excel (.xlsx).',
+                Icons.table_view_rounded,
+                Colors.green,
+                () => BackupExportService.exportToExcel(
+                  transactionProvider.transactions, 
+                  walletProvider.activeWallet?.name ?? 'Utama'
+                ),
+              ),
+              
+              const SizedBox(height: 40),
+              const Text(
+                'Catatan: Data Anda disimpan secara lokal di perangkat ini. Lakukan backup secara rutin untuk menghindari kehilangan data.',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.caption,
+              ),
+            ],
+          ),
         ),
       ),
     );

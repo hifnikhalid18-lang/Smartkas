@@ -8,6 +8,7 @@ import '../widgets/category_dropdown.dart';
 import '../widgets/reusable_card.dart';
 import '../utils/snackbar_helper.dart';
 import '../utils/category_helper.dart';
+import '../widgets/startup_background.dart';
 
 class InputScreen extends StatefulWidget {
   final String type;
@@ -130,16 +131,16 @@ class _InputScreenState extends State<InputScreen> {
     final isEditing = widget.transactionToEdit != null;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(isEditing ? 'Edit Transaksi' : 'Tambah ${widget.type}'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      body: StartupBackground(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               _buildSectionTitle('TIPE TRANSAKSI'),
               const SizedBox(height: AppSpacing.sm),
               Row(
@@ -218,7 +219,7 @@ class _InputScreenState extends State<InputScreen> {
                   decoration: InputDecoration(
                     hintText: 'Rp 0',
                     filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
+                    fillColor: AppColors.surface,
                   errorText: _nominalError,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   enabledBorder: OutlineInputBorder(
@@ -248,7 +249,7 @@ class _InputScreenState extends State<InputScreen> {
                 maxLines: 2,
                 style: AppTextStyles.body,
                 decoration: InputDecoration(
-                  hintText: 'Contoh: Makan Siang di Warung',
+                  hintText: 'Tambahkan catatan...',
                   filled: true,
                   fillColor: AppColors.surface,
                   errorText: _keteranganError,
@@ -273,24 +274,33 @@ class _InputScreenState extends State<InputScreen> {
               ),
               const SizedBox(height: AppSpacing.xl),
 
-              ElevatedButton(
-                onPressed: _simpan,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryText,
-                  foregroundColor: Colors.white,
+              GestureDetector(
+                onTap: _simpan,
+                child: Container(
+                  width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: AppRadius.roundedMd),
-                  elevation: 0,
-                ),
-                child: Text(
-                  isEditing ? 'UPDATE TRANSAKSI' : 'SIMPAN TRANSAKSI',
-                  style: AppTextStyles.body.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                  decoration: BoxDecoration(
+                    gradient: AppGradients.primaryCTA,
+                    borderRadius: AppRadius.roundedMd,
+                    boxShadow: AppColors.softShadow,
+                  ),
+                  child: Center(
+                    child: Text(
+                      isEditing ? 'UPDATE TRANSAKSI' : 'SIMPAN TRANSAKSI',
+                      style: AppTextStyles.body.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -337,55 +347,183 @@ class _InputScreenState extends State<InputScreen> {
   }
 
   Widget _buildCategoryChips() {
-    final categories = CategoryHelper.getCategoriesByType(_selectedType);
+    final allCategories = CategoryHelper.getCategoriesByType(_selectedType);
+    final displayedCategories = allCategories.length > 6 ? allCategories.take(5).toList() : allCategories;
+    final hasMore = allCategories.length > 6;
     
     // Ensure selected category is valid
-    if (!categories.contains(_selectedCategory)) {
-      _selectedCategory = categories.first;
+    if (!allCategories.contains(_selectedCategory)) {
+      _selectedCategory = allCategories.first;
     }
 
     return Wrap(
       spacing: 8,
       runSpacing: 10,
-      children: categories.map((category) {
-        final isSelected = _selectedCategory == category;
-        final catColor = CategoryHelper.getCategoryColor(category);
-        
-        return GestureDetector(
-          onTap: () => setState(() => _selectedCategory = category),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.accentLight : AppColors.surface,
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(
-                color: isSelected ? AppColors.accent : AppColors.border.withOpacity(0.5),
-                width: isSelected ? 1.5 : 1.0,
+      children: [
+        ...displayedCategories.map((category) {
+          final isSelected = _selectedCategory == category;
+          final catColor = CategoryHelper.getCategoryColor(category);
+          
+          return GestureDetector(
+            onTap: () => setState(() => _selectedCategory = category),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.accentLight : AppColors.surface,
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(
+                  color: isSelected ? AppColors.accent : AppColors.border.withOpacity(0.5),
+                  width: isSelected ? 1.5 : 1.0,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    CategoryHelper.getCategoryIcon(category),
+                    size: 16,
+                    color: isSelected ? AppColors.accentDark : catColor,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    category,
+                    style: TextStyle(
+                      color: isSelected ? AppColors.accentDark : AppColors.primaryText,
+                      fontSize: 13,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  CategoryHelper.getCategoryIcon(category),
-                  size: 16,
-                  color: isSelected ? AppColors.accentDark : catColor,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  category,
-                  style: TextStyle(
-                    color: isSelected ? AppColors.accentDark : AppColors.primaryText,
-                    fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          );
+        }),
+        if (hasMore)
+          GestureDetector(
+            onTap: () => _showCategoryModal(allCategories),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: AppColors.border.withOpacity(0.5)),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.grid_view_rounded, size: 16, color: AppColors.accent),
+                  SizedBox(width: 6),
+                  Text(
+                    'Lainnya',
+                    style: TextStyle(
+                      color: AppColors.accent,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
+      ],
+    );
+  }
+
+  void _showCategoryModal(List<String> categories) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Pilih Kategori',
+                        style: AppTextStyles.title.copyWith(fontSize: 18),
+                      ),
+                      const SizedBox(height: 20),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 0.9,
+                        ),
+                        itemCount: categories.length,
+                        itemBuilder: (context, index) {
+                          final category = categories[index];
+                          final isSelected = _selectedCategory == category;
+                          final catColor = CategoryHelper.getCategoryColor(category);
+
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() => _selectedCategory = category);
+                              Navigator.pop(context);
+                            },
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? AppColors.accentLight : AppColors.cardBg,
+                                    shape: BoxShape.circle,
+                                    border: isSelected 
+                                        ? Border.all(color: AppColors.accent, width: 2)
+                                        : null,
+                                  ),
+                                  child: Icon(
+                                    CategoryHelper.getCategoryIcon(category),
+                                    color: isSelected ? AppColors.accentDark : catColor,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  category,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                    color: isSelected ? AppColors.accentDark : AppColors.primaryText,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
-      }).toList(),
+      },
     );
   }
 }
