@@ -136,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Hello,',
+                          'Halo,',
                           style: AppTextStyles.caption.copyWith(fontSize: 12),
                         ),
                         Text(

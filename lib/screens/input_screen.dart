@@ -301,7 +301,7 @@ class _InputScreenState extends State<InputScreen> {
                   elevation: 0,
                 ),
                 child: Text(
-                  isEditing ? 'UPDATE DATA' : 'SIMPAN TRANSAKSI',
+                  isEditing ? 'UPDATE TRANSAKSI' : 'SIMPAN TRANSAKSI',
                   style: AppTextStyles.body.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),

@@ -22,7 +22,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Statistik Keuangan'),
+        title: const Text('Laporan Keuangan'),
       ),
       body: ListenableBuilder(
         listenable: transactionProvider,
@@ -203,7 +203,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _buildPeriodFilter() {
-    final periods = ['Bulan Ini', 'Bulan Lalu', 'Semua'];
+    final periods = ['Harian', 'Mingguan', 'Bulanan', 'Tahunan'];
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,

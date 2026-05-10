@@ -48,7 +48,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
-            title: const Text('Riwayat'),
+            title: const Text('Riwayat Transaksi'),
             actions: [
               const WalletSelector(),
               IconButton(
@@ -154,7 +154,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ? 'Belum ada riwayat transaksi' 
                       : 'Hasil pencarian tidak ditemukan',
                   emptyIcon: _searchQuery.isEmpty 
-                      ? Icons.history_toggle_off 
+                      ? Icons.receipt_long_outlined 
                       : Icons.search_off,
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
@@ -303,27 +303,27 @@ class _HistoryScreenState extends State<HistoryScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'MANAJEMEN DATA',
+                'KEAMANAN & DATA',
                 style: AppTextStyles.title.copyWith(letterSpacing: 1.2),
               ),
               const SizedBox(height: AppSpacing.lg),
               _buildDataButton(
                 context, 
-                'Backup Data (JSON)', 
+                'Backup & Restore (Cloud)', 
                 Icons.backup_rounded, 
                 () => BackupExportService.backupData(transactionProvider.transactions)
               ),
               const SizedBox(height: AppSpacing.md),
               _buildDataButton(
                 context, 
-                'Restore Data (JSON)', 
+                'Pulihkan Data (JSON)', 
                 Icons.restore_rounded, 
                 () async {
                   bool success = await BackupExportService.restoreData();
                   if (success && mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Data berhasil direstore!'), behavior: SnackBarBehavior.floating),
+                      const SnackBar(content: Text('Data berhasil dipulihkan!'), behavior: SnackBarBehavior.floating),
                     );
                   }
                 }
@@ -331,7 +331,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               const SizedBox(height: AppSpacing.md),
               _buildDataButton(
                 context, 
-                'Ekspor Data (CSV)', 
+                'Ekspor Laporan (CSV)', 
                 Icons.description_rounded, 
                 () => BackupExportService.exportToCSV(transactionProvider.transactions)
               ),

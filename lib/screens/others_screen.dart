@@ -17,49 +17,57 @@ class OthersScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Menu'),
+        title: const Text('Lainnya'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildSectionTitle('FITUR UTAMA'),
+            _buildSectionTitle('LAYANAN KEUANGAN'),
             const SizedBox(height: AppSpacing.sm),
             _buildMenuCard(
               context,
               title: 'Hutang Piutang',
-              subtitle: 'Catat pinjaman & tagihan',
+              subtitle: 'Manajemen pinjaman & tagihan',
               icon: Icons.people_outline_rounded,
-              color: Colors.purple,
+              color: Colors.indigo,
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DebtScreen())),
             ),
             _buildMenuCard(
               context,
               title: 'Target Menabung',
-              subtitle: 'Wujudkan impian Anda',
+              subtitle: 'Rencana tabungan & impian',
               icon: Icons.savings_outlined,
-              color: Colors.pink,
+              color: Colors.pinkAccent,
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SavingsScreen())),
             ),
             _buildMenuCard(
               context,
               title: 'Multi Kas',
-              subtitle: 'Kelola banyak pembukuan',
+              subtitle: 'Kelola banyak buku kas',
               icon: Icons.account_balance_wallet_outlined,
-              color: Colors.teal,
+              color: AppColors.accent,
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih kas di header Beranda!')));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih kas melalui header di Beranda!')));
               },
             ),
             
             const SizedBox(height: AppSpacing.lg),
-            _buildSectionTitle('SISTEM'),
+            _buildSectionTitle('PENGATURAN SISTEM'),
             const SizedBox(height: AppSpacing.sm),
             _buildMenuCard(
               context,
-              title: 'Backup Data',
-              subtitle: 'Amankan data transaksi',
+              title: 'Keamanan Aplikasi',
+              subtitle: 'Proteksi akses dengan PIN',
+              icon: Icons.lock_outline_rounded,
+              color: AppColors.warning,
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PinSetupScreen())),
+            ),
+            _buildMenuCard(
+              context,
+              title: 'Pencadangan Data',
+              subtitle: 'Backup & restore transaksi',
               icon: Icons.cloud_upload_outlined,
               color: Colors.blueGrey,
               onTap: () {
@@ -69,28 +77,16 @@ class OthersScreen extends StatelessWidget {
             ),
             _buildMenuCard(
               context,
-              title: 'PIN Keamanan',
-              subtitle: 'Kunci aplikasi dengan PIN',
-              icon: Icons.lock_outline_rounded,
-              color: AppColors.warning,
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PinSetupScreen())),
-            ),
-            _buildMenuCard(
-              context,
-              title: 'Pengaturan',
-              subtitle: 'Profil, Tema, dll',
-              icon: Icons.tune_rounded,
+              title: 'Pengaturan App',
+              subtitle: 'Kustomisasi, Profil, & Tema',
+              icon: Icons.settings_outlined,
               color: Colors.grey,
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
             ),
-            
-            const SizedBox(height: AppSpacing.lg),
-            _buildSectionTitle('TENTANG'),
-            const SizedBox(height: AppSpacing.sm),
             _buildMenuCard(
               context,
               title: 'Tentang Aplikasi',
-              subtitle: 'Info Smartkas',
+              subtitle: 'Versi & Informasi Smartkas',
               icon: Icons.info_outline_rounded,
               color: Colors.blue,
               onTap: () => _showAbout(context),

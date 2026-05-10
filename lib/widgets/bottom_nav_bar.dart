@@ -32,7 +32,7 @@ class CustomBottomNavBar extends StatelessWidget {
             _buildNavItem(0, Icons.home_rounded, 'Home'),
             _buildNavItem(1, Icons.receipt_long_rounded, 'Transaksi'),
             _buildNavItem(2, Icons.bar_chart_rounded, 'Laporan'),
-            _buildNavItem(3, Icons.grid_view_rounded, 'Menu'),
+            _buildNavItem(3, Icons.grid_view_rounded, 'Lainnya'),
           ],
         ),
       ),
