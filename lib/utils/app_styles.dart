@@ -1,43 +1,51 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary Palette (Monochrome)
-  static const Color background = Color(0xFFF8F9FA);
+  // Primary Palette (Pro-Smartkas)
+  static const Color background = Color(0xFFF8FAFC);
   static const Color surface = Colors.white;
-  static const Color primaryText = Color(0xFF212529);
-  static const Color secondaryText = Color(0xFF6C757D);
-  static const Color border = Color(0xFFE9ECEF);
+  static const Color primaryText = Color(0xFF1E293B); // Slate 800
+  static const Color secondaryText = Color(0xFF64748B); // Slate 500
+  static const Color border = Color(0xFFE2E8F0); // Slate 200
   
-  // Accent Color (Emerald Soft)
-  static const Color accent = Color(0xFF10B981);
+  // Accent Color (Emerald Pro)
+  static const Color accent = Color(0xFF059669);
   static const Color accentLight = Color(0xFFD1FAE5);
   
   // Functional Colors
-  static const Color error = Color(0xFFEF4444);
-  static const Color success = Color(0xFF10B981);
+  static const Color error = Color(0xFFE11D48); // Rose Red
+  static const Color success = Color(0xFF059669);
   static const Color warning = Color(0xFFF59E0B);
   
-  // Shadow
+  // Shadow (Soft UI - 4% opacity)
   static List<BoxShadow> softShadow = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.04),
-      blurRadius: 12,
+      color: const Color(0xFF1E293B).withOpacity(0.04),
+      blurRadius: 16,
       offset: const Offset(0, 4),
+    ),
+  ];
+
+  static List<BoxShadow> floatingShadow = [
+    BoxShadow(
+      color: const Color(0xFF059669).withOpacity(0.1),
+      blurRadius: 24,
+      offset: const Offset(0, 12),
     ),
   ];
 }
 
 class AppGradients {
-  static const LinearGradient primary = LinearGradient(
+  static const LinearGradient emerald = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF10B981), Color(0xFF059669)],
+    colors: [Color(0xFF059669), Color(0xFF10B981)],
   );
 
-  static const LinearGradient surface = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Colors.white, Color(0xFFF8F9FA)],
+  static const LinearGradient glass = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Colors.white24, Colors.white10],
   );
 }
 
@@ -84,9 +92,11 @@ class AppSpacing {
 }
 
 class AppRadius {
-  static const double sm = 8.0;
+  static const double sm = 10.0;
   static const double md = 16.0;
   static const double lg = 24.0;
+  static const double xl = 32.0;
   static BorderRadius roundedMd = BorderRadius.circular(md);
   static BorderRadius roundedLg = BorderRadius.circular(lg);
+  static BorderRadius roundedXl = BorderRadius.circular(xl);
 }

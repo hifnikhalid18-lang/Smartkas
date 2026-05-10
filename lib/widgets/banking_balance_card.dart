@@ -17,15 +17,9 @@ class BankingBalanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: AppGradients.primary,
+        gradient: AppGradients.emerald,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF10B981).withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        boxShadow: AppColors.floatingShadow,
       ),
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(

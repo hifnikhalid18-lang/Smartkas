@@ -67,7 +67,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           final income = transactionProvider.totalIncome;
           final expense = transactionProvider.totalExpense;
 
-          final filteredTransactions = allTransactions.where((tx) {
+          final filteredTransactions = transactionProvider.filteredTransactions.where((tx) {
             final query = _searchQuery.toLowerCase();
             return tx.title.toLowerCase().contains(query) ||
                    tx.amount.toString().contains(query) ||
@@ -91,36 +91,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (value) => setState(() => _searchQuery = value),
-                  decoration: InputDecoration(
-                    hintText: 'Cari transaksi...',
-                    hintStyle: AppTextStyles.caption.copyWith(color: AppColors.secondaryText.withOpacity(0.5)),
-                    prefixIcon: const Icon(Icons.search_rounded, color: AppColors.secondaryText),
-                    filled: true,
-                    fillColor: AppColors.surface,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
-                      borderRadius: AppRadius.roundedMd,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) => setState(() => _searchQuery = value),
+                        decoration: InputDecoration(
+                          hintText: 'Cari transaksi...',
+                          hintStyle: AppTextStyles.caption.copyWith(color: AppColors.secondaryText.withOpacity(0.5)),
+                          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.secondaryText),
+                          filled: true,
+                          fillColor: AppColors.surface,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.border.withOpacity(0.3)),
+                            borderRadius: AppRadius.roundedMd,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+                            borderRadius: AppRadius.roundedMd,
+                          ),
+                        ),
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
-                      borderRadius: AppRadius.roundedMd,
-                    ),
-                    suffixIcon: _searchQuery.isNotEmpty 
-                      ? IconButton(
-                          icon: const Icon(Icons.clear_rounded, color: AppColors.secondaryText),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() => _searchQuery = '');
-                          },
-                        ) 
-                      : null,
-                  ),
+                    const SizedBox(width: AppSpacing.sm),
+                    _buildCalendarButton(),
+                  ],
                 ),
               ),
+
+              _buildFilterChips(),
+              const SizedBox(height: AppSpacing.md),
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
@@ -215,6 +217,54 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   },
 );
+  }
+
+  Widget _buildCalendarButton() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        boxShadow: AppColors.softShadow,
+      ),
+      child: IconButton(
+        icon: const Icon(Icons.calendar_month_rounded, color: AppColors.accent),
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih tanggal dari kalender...')));
+        },
+      ),
+    );
+  }
+
+  Widget _buildFilterChips() {
+    final filters = ['Harian', 'Mingguan', 'Bulanan', 'Tahunan'];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      child: Row(
+        children: filters.map((filter) {
+          final isSelected = transactionProvider.statPeriod == filter;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ChoiceChip(
+              label: Text(filter),
+              selected: isSelected,
+              onSelected: (_) => transactionProvider.setStatPeriod(filter),
+              selectedColor: AppColors.accent,
+              labelStyle: TextStyle(
+                color: isSelected ? Colors.white : AppColors.secondaryText,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+              backgroundColor: AppColors.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: isSelected ? AppColors.accent : AppColors.border.withOpacity(0.5)),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
   }
 
   Widget _buildSummaryRow(String label, String value, {bool isBold = false, Color? color}) {

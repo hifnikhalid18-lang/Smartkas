@@ -17,7 +17,7 @@ class OthersScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Lainnya'),
+        title: const Text('Menu'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -41,6 +41,16 @@ class OthersScreen extends StatelessWidget {
               icon: Icons.savings_outlined,
               color: Colors.pink,
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SavingsScreen())),
+            ),
+            _buildMenuCard(
+              context,
+              title: 'Multi Kas',
+              subtitle: 'Kelola banyak pembukuan',
+              icon: Icons.account_balance_wallet_outlined,
+              color: Colors.teal,
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih kas di header Beranda!')));
+              },
             ),
             
             const SizedBox(height: AppSpacing.lg),

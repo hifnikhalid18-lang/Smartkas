@@ -44,38 +44,47 @@ class TransactionProvider extends ChangeNotifier {
   }
 
   // Filtered Statistics based on period
-  List<TransactionModel> get _filteredTransactions {
-    if (_statPeriod == 'Semua') {
-      return _transactions;
-    }
-    
+  List<TransactionModel> get filteredTransactions {
     final now = DateTime.now();
-    if (_statPeriod == 'Bulan Lalu') {
-      int prevMonth = now.month - 1;
-      int year = now.year;
-      if (prevMonth == 0) {
-        prevMonth = 12;
-        year -= 1;
-      }
-      return _transactions.where((tx) => 
-        tx.date.month == prevMonth && tx.date.year == year
-      ).toList();
-    }
     
-    // Default: Bulan Ini
-    return _transactions.where((tx) => 
-      tx.date.month == now.month && tx.date.year == now.year
-    ).toList();
+    switch (_statPeriod) {
+      case 'Harian':
+        return _transactions.where((tx) => 
+          tx.date.day == now.day && tx.date.month == now.month && tx.date.year == now.year
+        ).toList();
+      case 'Mingguan':
+        final lastWeek = now.subtract(const Duration(days: 7));
+        return _transactions.where((tx) => tx.date.isAfter(lastWeek)).toList();
+      case 'Bulanan':
+      case 'Bulan Ini':
+        return _transactions.where((tx) => 
+          tx.date.month == now.month && tx.date.year == now.year
+        ).toList();
+      case 'Tahunan':
+        return _transactions.where((tx) => tx.date.year == now.year).toList();
+      case 'Bulan Lalu':
+        int prevMonth = now.month - 1;
+        int year = now.year;
+        if (prevMonth == 0) {
+          prevMonth = 12;
+          year -= 1;
+        }
+        return _transactions.where((tx) => 
+          tx.date.month == prevMonth && tx.date.year == year
+        ).toList();
+      default:
+        return _transactions;
+    }
   }
 
   double get monthlyIncome {
-    return _filteredTransactions.fold(0.0, (sum, tx) => 
+    return filteredTransactions.fold(0.0, (sum, tx) => 
       tx.type == TransactionType.pemasukan ? sum + tx.amount : sum
     );
   }
 
   double get monthlyExpense {
-    return _filteredTransactions.fold(0.0, (sum, tx) => 
+    return filteredTransactions.fold(0.0, (sum, tx) => 
       tx.type == TransactionType.pengeluaran ? sum + tx.amount : sum
     );
   }
@@ -85,6 +94,21 @@ class TransactionProvider extends ChangeNotifier {
   double get expensePercentage {
     if (monthlyIncome == 0) return 0;
     return (monthlyExpense / monthlyIncome) * 100;
+  }
+
+  Map<String, double> get categoryExpenseSummaries {
+    final summaries = <String, double>{};
+    final expenses = filteredTransactions.where((tx) => tx.type == TransactionType.pengeluaran);
+    
+    for (var tx in expenses) {
+      summaries[tx.category] = (summaries[tx.category] ?? 0.0) + tx.amount;
+    }
+    
+    // Sort by amount descending
+    final sortedEntries = summaries.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+      
+    return Map.fromEntries(sortedEntries);
   }
 
   Future<void> loadTransactions(String walletId) async {

@@ -48,12 +48,21 @@ class TransactionItem extends StatelessWidget {
               children: [
                 Text(
                   transaction.title,
-                  style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
+                  style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
-                CategoryChip(category: transaction.category),
+                const SizedBox(height: 2),
+                Text(
+                  transaction.category,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.secondaryText,
+                    fontSize: 12,
+                  ),
+                ),
               ],
             ),
           ),
@@ -65,7 +74,7 @@ class TransactionItem extends StatelessWidget {
                 style: AppTextStyles.body.copyWith(
                   fontWeight: FontWeight.bold,
                   color: isIncome ? AppColors.success : AppColors.error,
-                  fontSize: 13,
+                  fontSize: 16,
                 ),
               ),
               const SizedBox(height: 4),
@@ -74,12 +83,20 @@ class TransactionItem extends StatelessWidget {
                 children: [
                   Text(
                     transaction.date.toString().split(' ')[0],
-                    style: AppTextStyles.caption.copyWith(fontSize: 10),
+                    style: TextStyle(
+                      color: AppColors.secondaryText.withOpacity(0.6),
+                      fontSize: 10,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   InkWell(
                     onTap: onDelete,
-                    child: const Icon(Icons.delete_outline_rounded, size: 16, color: AppColors.error),
+                    child: Icon(
+                      Icons.delete_outline_rounded,
+                      size: 14,
+                      color: AppColors.error.withOpacity(0.5),
+                    ),
                   ),
                 ],
               ),

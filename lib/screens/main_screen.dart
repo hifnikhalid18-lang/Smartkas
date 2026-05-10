@@ -5,6 +5,7 @@ import 'statistics_screen.dart';
 import 'others_screen.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../utils/app_styles.dart';
+import '../providers/navigation_provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,8 +15,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
-
   final List<Widget> _screens = [
     const HomeScreen(),
     const HistoryScreen(),
@@ -23,24 +22,23 @@ class _MainScreenState extends State<MainScreen> {
     const OthersScreen(),
   ];
 
-  void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onTabTapped,
-      ),
+    return ListenableBuilder(
+      listenable: navigationProvider,
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: IndexedStack(
+            index: navigationProvider.currentIndex,
+            children: _screens,
+          ),
+          bottomNavigationBar: CustomBottomNavBar(
+            currentIndex: navigationProvider.currentIndex,
+            onTap: (index) => navigationProvider.setIndex(index),
+          ),
+        );
+      },
     );
   }
 }

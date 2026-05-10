@@ -29,10 +29,10 @@ class CustomBottomNavBar extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildNavItem(0, Icons.home_rounded, 'Beranda'),
-            _buildNavItem(1, Icons.history_rounded, 'Riwayat'),
-            _buildNavItem(2, Icons.analytics_rounded, 'Statistik'),
-            _buildNavItem(3, Icons.menu_rounded, 'Lainnya'),
+            _buildNavItem(0, Icons.home_rounded, 'Home'),
+            _buildNavItem(1, Icons.receipt_long_rounded, 'Transaksi'),
+            _buildNavItem(2, Icons.bar_chart_rounded, 'Laporan'),
+            _buildNavItem(3, Icons.grid_view_rounded, 'Menu'),
           ],
         ),
       ),
