@@ -7,6 +7,7 @@ class TransactionProvider extends ChangeNotifier {
   List<TransactionModel> _transactions = [];
   bool _isLoading = true;
   String? _currentWalletId;
+  String _statPeriod = 'Bulan Ini'; // Bulan Ini, Bulan Lalu, Semua
 
   TransactionProvider() {
     // Initial load will be triggered by the UI or when active wallet is ready
@@ -14,6 +15,12 @@ class TransactionProvider extends ChangeNotifier {
 
   List<TransactionModel> get transactions => List.unmodifiable(_transactions);
   bool get isLoading => _isLoading;
+  String get statPeriod => _statPeriod;
+
+  void setStatPeriod(String period) {
+    _statPeriod = period;
+    notifyListeners();
+  }
 
   // Total Statistics
   double get totalBalance {
@@ -36,22 +43,39 @@ class TransactionProvider extends ChangeNotifier {
     );
   }
 
-  // Monthly Statistics
-  List<TransactionModel> get _monthlyTransactions {
+  // Filtered Statistics based on period
+  List<TransactionModel> get _filteredTransactions {
+    if (_statPeriod == 'Semua') {
+      return _transactions;
+    }
+    
     final now = DateTime.now();
+    if (_statPeriod == 'Bulan Lalu') {
+      int prevMonth = now.month - 1;
+      int year = now.year;
+      if (prevMonth == 0) {
+        prevMonth = 12;
+        year -= 1;
+      }
+      return _transactions.where((tx) => 
+        tx.date.month == prevMonth && tx.date.year == year
+      ).toList();
+    }
+    
+    // Default: Bulan Ini
     return _transactions.where((tx) => 
       tx.date.month == now.month && tx.date.year == now.year
     ).toList();
   }
 
   double get monthlyIncome {
-    return _monthlyTransactions.fold(0.0, (sum, tx) => 
+    return _filteredTransactions.fold(0.0, (sum, tx) => 
       tx.type == TransactionType.pemasukan ? sum + tx.amount : sum
     );
   }
 
   double get monthlyExpense {
-    return _monthlyTransactions.fold(0.0, (sum, tx) => 
+    return _filteredTransactions.fold(0.0, (sum, tx) => 
       tx.type == TransactionType.pengeluaran ? sum + tx.amount : sum
     );
   }
@@ -64,6 +88,11 @@ class TransactionProvider extends ChangeNotifier {
   }
 
   Future<void> loadTransactions(String walletId) async {
+    // Avoid redundant loading if already loaded for this wallet
+    if (_currentWalletId == walletId && !_isLoading) {
+      return;
+    }
+
     _currentWalletId = walletId;
     _isLoading = true;
     notifyListeners();

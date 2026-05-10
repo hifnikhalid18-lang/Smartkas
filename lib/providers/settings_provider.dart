@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/local_notification_service.dart';
 
 class SettingsProvider extends ChangeNotifier {
-  String _username = 'KasKu User';
+  String _username = 'Smartkas User';
   String _defaultFilter = 'Semua';
   bool _isReminderEnabled = false;
   int _reminderHour = 20;
@@ -22,7 +22,7 @@ class SettingsProvider extends ChangeNotifier {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    _username = prefs.getString('username') ?? 'KasKu User';
+    _username = prefs.getString('username') ?? 'Smartkas User';
     _defaultFilter = prefs.getString('default_filter') ?? 'Semua';
     _isReminderEnabled = prefs.getBool('is_reminder_enabled') ?? false;
     _reminderHour = prefs.getInt('reminder_hour') ?? 20;

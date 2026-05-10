@@ -23,16 +23,17 @@ class ReusableCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: margin ?? const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         padding: padding ?? const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: color ?? AppColors.surface,
+          color: color ?? theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(borderRadius ?? AppRadius.md),
-          boxShadow: AppColors.softShadow,
-          border: border ?? Border.all(color: AppColors.border.withOpacity(0.5)),
+          boxShadow: theme.brightness == Brightness.light ? AppColors.softShadow : null,
+          border: border ?? Border.all(color: theme.dividerColor.withOpacity(0.1)),
         ),
         child: child,
       ),

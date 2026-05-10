@@ -70,7 +70,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
           final filteredTransactions = allTransactions.where((tx) {
             final query = _searchQuery.toLowerCase();
             return tx.title.toLowerCase().contains(query) ||
-                   tx.amount.toString().contains(query);
+                   tx.amount.toString().contains(query) ||
+                   tx.category.toLowerCase().contains(query) ||
+                   tx.type.name.toLowerCase().contains(query);
           }).toList();
 
           final Map<String, List<TransactionModel>> groupedTransactions = {};
@@ -93,7 +95,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   controller: _searchController,
                   onChanged: (value) => setState(() => _searchQuery = value),
                   decoration: InputDecoration(
-                    hintText: 'Cari keterangan atau nominal...',
+                    hintText: 'Cari transaksi...',
                     hintStyle: AppTextStyles.caption.copyWith(color: AppColors.secondaryText.withOpacity(0.5)),
                     prefixIcon: const Icon(Icons.search_rounded, color: AppColors.secondaryText),
                     filled: true,
@@ -341,37 +343,4 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  void _showResetDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: AppColors.surface,
-          shape: RoundedRectangleBorder(borderRadius: AppRadius.roundedMd),
-          title: const Text('Reset Semua Data?'),
-          content: const Text('Tindakan ini akan menghapus SELURUH transaksi. Apakah Anda yakin?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: TextStyle(color: AppColors.secondaryText)),
-            ),
-            TextButton(
-              onPressed: () {
-                transactionProvider.clearAllTransactions();
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Seluruh data berhasil dihapus'),
-                    backgroundColor: AppColors.primaryText,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
-              child: const Text('Reset', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

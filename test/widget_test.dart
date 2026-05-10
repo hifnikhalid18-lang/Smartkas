@@ -13,7 +13,7 @@ import 'package:smartkas/main.dart';
 void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {
     // Basic smoke test - just ensure the app builds
-    await tester.pumpWidget(const KasKuApp());
+    await tester.pumpWidget(const SmartkasApp());
     expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

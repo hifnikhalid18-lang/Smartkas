@@ -15,8 +15,22 @@ class PinSetupScreen extends StatefulWidget {
 class _PinSetupScreenState extends State<PinSetupScreen> {
   String? _firstPin;
   bool _confirmMode = false;
+  late bool _verifyingOld;
+
+  @override
+  void initState() {
+    super.initState();
+    _verifyingOld = widget.isChanging;
+  }
 
   void _handlePinComplete(String pin) {
+    if (_verifyingOld) {
+      setState(() {
+        _verifyingOld = false;
+        // Proceed to set new PIN
+      });
+      return;
+    }
     if (!_confirmMode) {
       setState(() {
         _firstPin = pin;
@@ -62,10 +76,13 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isChanging ? 'Ubah PIN' : 'Atur PIN Keamanan'),
+        title: Text(widget.isChanging 
+            ? (_verifyingOld ? 'Masukkan PIN Lama' : 'Ubah PIN Baru') 
+            : 'Atur PIN Keamanan'),
       ),
       body: PinLockScreen(
-        isVerifying: false,
+        isVerifying: _verifyingOld,
+        title: _verifyingOld ? 'Masukkan PIN Lama' : (_confirmMode ? 'Konfirmasi PIN Baru' : 'Buat PIN Baru'),
         onComplete: _handlePinComplete,
       ),
     );

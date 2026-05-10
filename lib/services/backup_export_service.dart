@@ -16,10 +16,10 @@ class BackupExportService {
       final String jsonString = jsonEncode(jsonData);
 
       final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/kasku_backup_${DateTime.now().millisecondsSinceEpoch}.json');
+      final file = File('${tempDir.path}/smartkas_backup_${DateTime.now().millisecondsSinceEpoch}.json');
       await file.writeAsString(jsonString);
 
-      await Share.shareXFiles([XFile(file.path)], text: 'Backup Data KasKu');
+      await Share.shareXFiles([XFile(file.path)], text: 'Backup Data Smartkas');
     } catch (e) {
       throw Exception('Gagal melakukan backup: $e');
     }
@@ -42,14 +42,10 @@ class BackupExportService {
             .map((item) => TransactionModel.fromJson(item))
             .toList();
 
-        // Update provider data
-        for (var tx in transactions) {
-          transactionProvider.addTransaction(tx);
-        }
-        // Note: This adds to existing. If we want to replace, we need clearAll first.
-        // The user said "menggantikan data lama"
-        
+        // Hapus data lama terlebih dahulu
         transactionProvider.clearAllTransactions();
+        
+        // Masukkan data baru hasil restore
         for (var tx in transactions) {
           transactionProvider.addTransaction(tx);
         }
@@ -77,10 +73,10 @@ class BackupExportService {
       }
 
       final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/kasku_export_${DateTime.now().millisecondsSinceEpoch}.csv');
+      final file = File('${tempDir.path}/smartkas_export_${DateTime.now().millisecondsSinceEpoch}.csv');
       await file.writeAsString(csvContent);
 
-      await Share.shareXFiles([XFile(file.path)], text: 'Ekspor Data KasKu (CSV)');
+      await Share.shareXFiles([XFile(file.path)], text: 'Ekspor Data Smartkas (CSV)');
     } catch (e) {
       throw Exception('Gagal melakukan ekspor: $e');
     }

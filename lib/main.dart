@@ -9,11 +9,11 @@ import 'screens/pin_lock_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LocalNotificationService.init();
-  runApp(const KasKuApp());
+  runApp(const SmartkasApp());
 }
 
-class KasKuApp extends StatelessWidget {
-  const KasKuApp({super.key});
+class SmartkasApp extends StatelessWidget {
+  const SmartkasApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +32,9 @@ class KasKuApp extends StatelessWidget {
               if (securityProvider.isLocked) {
                 return const PinLockScreen();
               }
+              // Skip splash screen for simplicity, or we can use it to load data. 
+              // The user had SplashScreen return MainScreen eventually. Let's see if there is a main routing setup.
+              // Wait, the splash screen probably navigates to HomeScreen currently.
               return const SplashScreen();
             },
           ),

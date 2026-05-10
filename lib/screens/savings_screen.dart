@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../providers/savings_provider.dart';
+import '../providers/transaction_provider.dart';
+import '../models/transaction.dart';
 import '../widgets/savings_goal_card.dart';
 import '../widgets/add_goal_modal.dart';
 import '../widgets/status_widgets.dart';
@@ -53,6 +55,7 @@ class SavingsScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'savings_fab',
         onPressed: () => _showAddGoal(context),
         backgroundColor: AppColors.accent,
         foregroundColor: Colors.white,
@@ -91,8 +94,29 @@ class SavingsScreen extends StatelessWidget {
             onPressed: () {
               final amount = double.tryParse(controller.text) ?? 0;
               if (amount > 0) {
+                // Update savings goal
                 savingsProvider.addFunds(goalId, amount);
+                
+                // Add transaction as expense
+                final goal = savingsProvider.goals.firstWhere((g) => g.id == goalId);
+                final tx = TransactionModel(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  title: 'Tabungan: ${goal.title}',
+                  amount: amount,
+                  date: DateTime.now(),
+                  type: TransactionType.pengeluaran,
+                  category: 'Tabungan',
+                );
+                transactionProvider.addTransaction(tx);
+                
                 Navigator.pop(context);
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Dana Rp ${amount.toStringAsFixed(0)} ditambahkan ke tabungan dan dicatat sebagai pengeluaran.'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent, foregroundColor: Colors.white),

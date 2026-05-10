@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../providers/settings_provider.dart';
 import '../providers/transaction_provider.dart';
+import '../providers/debt_provider.dart';
+import '../providers/savings_provider.dart';
 import '../utils/app_styles.dart';
 import '../widgets/reusable_card.dart';
 import '../widgets/reminder_settings_card.dart';
@@ -56,10 +58,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       TextField(
                         controller: _usernameController,
                         onChanged: (value) => settingsProvider.setUsername(value),
+                        style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
                         decoration: InputDecoration(
                           hintText: 'Contoh: Kas Keluarga',
                           filled: true,
-                          fillColor: AppColors.background,
+                          fillColor: Theme.of(context).scaffoldBackgroundColor,
                           border: OutlineInputBorder(
                             borderRadius: AppRadius.roundedMd,
                             borderSide: BorderSide.none,
@@ -258,11 +261,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showResetDialog(BuildContext context) {
     showDialog(
       context: context,
+      builder: (context) => SimpleDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.roundedMd),
+        title: const Text('Pilih Opsi Reset'),
+        children: [
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.pop(context);
+              _confirmReset(context, 'Hapus Transaksi Saja?', 'Hanya data transaksi yang akan dihapus.', () {
+                transactionProvider.clearAllTransactions();
+              });
+            },
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text('Hapus Transaksi Saja', style: AppTextStyles.body),
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.pop(context);
+              _confirmReset(context, 'Reset Seluruh Data?', 'Semua transaksi, hutang, dan tabungan akan dihapus secara permanen.', () {
+                transactionProvider.clearAllTransactions();
+                // Add methods to clear debt and savings if they exist
+                // Assuming we can just delete one by one or clear list
+                for (var debt in debtProvider.debts.toList()) {
+                  debtProvider.deleteDebt(debt.id);
+                }
+                for (var goal in savingsProvider.goals.toList()) {
+                  savingsProvider.deleteGoal(goal.id);
+                }
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text('Reset Seluruh Data', style: AppTextStyles.body.copyWith(color: AppColors.error, fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmReset(BuildContext context, String title, String content, VoidCallback onConfirm) {
+    showDialog(
+      context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.roundedMd),
-        title: const Text('Reset Data?'),
-        content: const Text('Tindakan ini akan menghapus seluruh transaksi secara permanen.'),
+        title: Text(title),
+        content: Text(content),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -270,7 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           TextButton(
             onPressed: () {
-              transactionProvider.clearAllTransactions();
+              onConfirm();
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

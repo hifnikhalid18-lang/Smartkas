@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/transaction.dart';
-import '../widgets/transaction_item.dart';
+import 'transaction_item.dart';
 import '../screens/input_screen.dart';
-import '../utils/currency_formatter.dart';
 import '../utils/app_styles.dart';
 
 class FilterChipWidget extends StatelessWidget {

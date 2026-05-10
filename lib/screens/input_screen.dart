@@ -26,6 +26,7 @@ class _InputScreenState extends State<InputScreen> {
   late TextEditingController _keteranganController;
   late TransactionType _selectedType;
   late String _selectedCategory;
+  late DateTime _selectedDate;
   
   String? _nominalError;
   String? _keteranganError;
@@ -46,6 +47,7 @@ class _InputScreenState extends State<InputScreen> {
             ? TransactionType.pemasukan
             : TransactionType.pengeluaran);
     _selectedCategory = widget.transactionToEdit?.category ?? 'Lainnya';
+    _selectedDate = widget.transactionToEdit?.date ?? DateTime.now();
   }
 
   @override
@@ -99,7 +101,7 @@ class _InputScreenState extends State<InputScreen> {
         id: widget.transactionToEdit!.id,
         title: keterangan,
         amount: nominal,
-        date: widget.transactionToEdit!.date,
+        date: _selectedDate,
         type: _selectedType,
         category: _selectedCategory,
       );
@@ -117,7 +119,7 @@ class _InputScreenState extends State<InputScreen> {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: keterangan,
         amount: nominal,
-        date: DateTime.now(),
+        date: _selectedDate,
         type: _selectedType,
         category: _selectedCategory,
       );
@@ -172,6 +174,55 @@ class _InputScreenState extends State<InputScreen> {
               ),
               const SizedBox(height: AppSpacing.lg),
 
+              _buildSectionTitle('TANGGAL'),
+              const SizedBox(height: AppSpacing.sm),
+              GestureDetector(
+                onTap: () async {
+                  final DateTime? picked = await showDatePicker(
+                    context: context,
+                    initialDate: _selectedDate,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: const ColorScheme.light(
+                            primary: AppColors.accent,
+                            onPrimary: Colors.white,
+                            onSurface: AppColors.primaryText,
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
+                  );
+                  if (picked != null && picked != _selectedDate) {
+                    setState(() {
+                      _selectedDate = picked;
+                    });
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: AppRadius.roundedMd,
+                    border: Border.all(color: AppColors.border.withOpacity(0.5)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_today_rounded, color: AppColors.secondaryText, size: 20),
+                      const SizedBox(width: AppSpacing.md),
+                      Text(
+                        '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                        style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+
               _buildSectionTitle('NOMINAL'),
               const SizedBox(height: AppSpacing.sm),
               TextField(
@@ -182,10 +233,10 @@ class _InputScreenState extends State<InputScreen> {
                   RupiahInputFormatter(),
                 ],
                 style: AppTextStyles.body.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
-                decoration: InputDecoration(
-                  hintText: 'Rp 0',
-                  filled: true,
-                  fillColor: AppColors.surface,
+                  decoration: InputDecoration(
+                    hintText: 'Rp 0',
+                    filled: true,
+                    fillColor: Theme.of(context).colorScheme.surface,
                   errorText: _nominalError,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   enabledBorder: OutlineInputBorder(

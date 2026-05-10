@@ -87,6 +87,7 @@ class _DebtScreenState extends State<DebtScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'debt_fab',
         onPressed: () => _showForm(context),
         backgroundColor: AppColors.accent,
         foregroundColor: Colors.white,

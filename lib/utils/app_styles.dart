@@ -20,11 +20,25 @@ class AppColors {
   // Shadow
   static List<BoxShadow> softShadow = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.05),
-      blurRadius: 10,
+      color: Colors.black.withOpacity(0.04),
+      blurRadius: 12,
       offset: const Offset(0, 4),
     ),
   ];
+}
+
+class AppGradients {
+  static const LinearGradient primary = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF10B981), Color(0xFF059669)],
+  );
+
+  static const LinearGradient surface = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Colors.white, Color(0xFFF8F9FA)],
+  );
 }
 
 class AppTextStyles {
@@ -33,14 +47,12 @@ class AppTextStyles {
   static const TextStyle display = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.bold,
-    color: AppColors.primaryText,
     letterSpacing: -0.5,
   );
 
   static const TextStyle title = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w600,
-    color: AppColors.primaryText,
     letterSpacing: -0.2,
   );
 
@@ -53,7 +65,6 @@ class AppTextStyles {
   static const TextStyle body = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.normal,
-    color: AppColors.primaryText,
     height: 1.5,
   );
 

@@ -7,12 +7,14 @@ class SummaryMonthCard extends StatelessWidget {
   final double income;
   final double expense;
   final double balance;
+  final String title;
 
   const SummaryMonthCard({
     super.key,
     required this.income,
     required this.expense,
     required this.balance,
+    this.title = 'RINGKASAN',
   });
 
   @override
@@ -23,7 +25,7 @@ class SummaryMonthCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'RINGKASAN BULAN INI',
+            title.toUpperCase(),
             style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -42,9 +44,17 @@ class SummaryMonthCard extends StatelessWidget {
 
   Widget _buildRow(String label, double value, Color color, {bool isBold = false}) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: AppTextStyles.body.copyWith(color: isBold ? AppColors.primaryText : AppColors.secondaryText)),
+        Expanded(
+          child: Text(
+            label,
+            style: AppTextStyles.body.copyWith(
+              color: isBold ? AppColors.primaryText : AppColors.secondaryText,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
         Text(
           CurrencyFormatterHelper.formatRupiah(value),
           style: AppTextStyles.body.copyWith(
