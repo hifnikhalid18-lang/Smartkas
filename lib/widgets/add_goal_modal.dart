@@ -133,8 +133,8 @@ class _AddGoalModalState extends State<AddGoalModal> {
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: _titleController.text,
       targetAmount: amount,
-      deadline: _selectedDate,
-      icon: _selectedIcon,
+      startDate: DateTime.now(),
+      targetDate: _selectedDate,
     );
 
     savingsProvider.addGoal(newGoal);

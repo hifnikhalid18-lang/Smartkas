@@ -22,7 +22,7 @@ class _DebtFormModalState extends State<DebtFormModal> {
   void initState() {
     super.initState();
     if (widget.debtToEdit != null) {
-      _nameController.text = widget.debtToEdit!.personName;
+      _nameController.text = widget.debtToEdit!.title;
       _amountController.text = widget.debtToEdit!.amount.toString();
       _type = widget.debtToEdit!.type;
       _selectedDate = widget.debtToEdit!.date;
@@ -129,7 +129,7 @@ class _DebtFormModalState extends State<DebtFormModal> {
 
     final debt = DebtModel(
       id: widget.debtToEdit?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      personName: _nameController.text,
+      title: _nameController.text,
       amount: amount,
       type: _type,
       date: _selectedDate,

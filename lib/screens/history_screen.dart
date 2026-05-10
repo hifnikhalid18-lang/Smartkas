@@ -309,9 +309,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
               const SizedBox(height: AppSpacing.lg),
               _buildDataButton(
                 context, 
-                'Backup & Restore (Cloud)', 
+                'Master Backup (JSON)', 
                 Icons.backup_rounded, 
-                () => BackupExportService.backupData(transactionProvider.transactions)
+                () => BackupExportService.masterBackup()
               ),
               const SizedBox(height: AppSpacing.md),
               _buildDataButton(
@@ -319,7 +319,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 'Pulihkan Data (JSON)', 
                 Icons.restore_rounded, 
                 () async {
-                  bool success = await BackupExportService.restoreData();
+                  bool success = await BackupExportService.masterRestore();
                   if (success && mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -331,9 +331,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
               const SizedBox(height: AppSpacing.md),
               _buildDataButton(
                 context, 
-                'Ekspor Laporan (CSV)', 
+                'Ekspor Laporan (Excel)', 
                 Icons.description_rounded, 
-                () => BackupExportService.exportToCSV(transactionProvider.transactions)
+                () => BackupExportService.exportToExcel(transactionProvider.transactions, walletProvider.activeWallet?.name ?? 'Kas')
               ),
             ],
           ),

@@ -13,17 +13,13 @@ class DebtProvider extends ChangeNotifier {
   List<DebtModel> get debts => List.unmodifiable(_debts);
   bool get isLoading => _isLoading;
 
-  double get totalHutang {
-    return _debts
-        .where((d) => d.type == DebtType.hutang && !d.isPaid)
-        .fold(0.0, (sum, d) => sum + d.amount);
-  }
+  double get totalHutang => _debts
+      .where((d) => d.type == DebtType.hutang && !d.isPaid)
+      .fold(0.0, (sum, d) => sum + d.amount);
 
-  double get totalPiutang {
-    return _debts
-        .where((d) => d.type == DebtType.piutang && !d.isPaid)
-        .fold(0.0, (sum, d) => sum + d.amount);
-  }
+  double get totalPiutang => _debts
+      .where((d) => d.type == DebtType.piutang && !d.isPaid)
+      .fold(0.0, (sum, d) => sum + d.amount);
 
   Future<void> loadDebts() async {
     _isLoading = true;
@@ -34,24 +30,15 @@ class DebtProvider extends ChangeNotifier {
   }
 
   Future<void> addDebt(DebtModel debt) async {
-    _debts.add(debt);
+    _debts.insert(0, debt);
     await StorageService.saveDebts(_debts);
     notifyListeners();
   }
 
-  Future<void> updateDebt(DebtModel debt) async {
-    final index = _debts.indexWhere((d) => d.id == debt.id);
+  Future<void> updateDebt(DebtModel updatedDebt) async {
+    final index = _debts.indexWhere((d) => d.id == updatedDebt.id);
     if (index != -1) {
-      _debts[index] = debt;
-      await StorageService.saveDebts(_debts);
-      notifyListeners();
-    }
-  }
-
-  Future<void> togglePaidStatus(String id) async {
-    final index = _debts.indexWhere((d) => d.id == id);
-    if (index != -1) {
-      _debts[index].isPaid = !_debts[index].isPaid;
+      _debts[index] = updatedDebt;
       await StorageService.saveDebts(_debts);
       notifyListeners();
     }
@@ -61,6 +48,15 @@ class DebtProvider extends ChangeNotifier {
     _debts.removeWhere((d) => d.id == id);
     await StorageService.saveDebts(_debts);
     notifyListeners();
+  }
+
+  Future<void> togglePaid(String id) async {
+    final index = _debts.indexWhere((d) => d.id == id);
+    if (index != -1) {
+      _debts[index] = _debts[index].copyWith(isPaid: !_debts[index].isPaid);
+      await StorageService.saveDebts(_debts);
+      notifyListeners();
+    }
   }
 }
 

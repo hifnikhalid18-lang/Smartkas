@@ -3,8 +3,7 @@ import '../models/transaction.dart';
 import '../utils/app_styles.dart';
 import '../utils/currency_formatter.dart';
 import '../utils/category_helper.dart';
-import 'reusable_card.dart';
-import 'category_chip.dart';
+import 'package:intl/intl.dart';
 
 class TransactionItem extends StatelessWidget {
   final TransactionModel transaction;
@@ -20,89 +19,82 @@ class TransactionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isIncome = transaction.type == TransactionType.pemasukan;
-    final categoryColor = CategoryHelper.getCategoryColor(transaction.category);
+    final isIncome   = transaction.type == TransactionType.pemasukan;
+    final catColor   = CategoryHelper.getCategoryColor(transaction.category);
+    final catIcon    = CategoryHelper.getCategoryIcon(transaction.category);
+    final amountColor = isIncome ? AppColors.success : AppColors.error;
+    final sign       = isIncome ? '+' : '−';
 
-    return ReusableCard(
-      margin: EdgeInsets.zero,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
-      onTap: onTap,
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: categoryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
-              CategoryHelper.getCategoryIcon(transaction.category),
-              color: categoryColor,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  transaction.title,
-                  style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  transaction.category,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.secondaryText,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+    return Dismissible(
+      key: Key(transaction.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        color: AppColors.error.withOpacity(0.08),
+        child: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
+      ),
+      confirmDismiss: (_) async {
+        onDelete();
+        return false; // let provider handle it
+      },
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 11),
+          child: Row(
             children: [
-              Text(
-                '${isIncome ? '+' : '-'} ${CurrencyFormatterHelper.formatRupiah(transaction.amount)}',
-                style: AppTextStyles.body.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: isIncome ? AppColors.success : AppColors.error,
-                  fontSize: 16,
+              // Square icon
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: catColor.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(catIcon, color: catColor, size: 18),
+              ),
+              const SizedBox(width: 12),
+              // Text
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      transaction.category,
+                      style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, fontSize: 14),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (transaction.title.isNotEmpty)
+                      Text(
+                        transaction.title,
+                        style: AppTextStyles.micro.copyWith(color: AppColors.secondaryText, fontSize: 11),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              const SizedBox(width: 8),
+              // Amount + date
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    transaction.date.toString().split(' ')[0],
-                    style: TextStyle(
-                      color: AppColors.secondaryText.withOpacity(0.6),
-                      fontSize: 10,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    '$sign ${CurrencyFormatterHelper.formatRupiah(transaction.amount)}',
+                    style: AppTextStyles.amount.copyWith(color: amountColor, fontSize: 14),
                   ),
-                  const SizedBox(width: 8),
-                  InkWell(
-                    onTap: onDelete,
-                    child: Icon(
-                      Icons.delete_outline_rounded,
-                      size: 14,
-                      color: AppColors.error.withOpacity(0.5),
-                    ),
+                  const SizedBox(height: 2),
+                  Text(
+                    DateFormat('dd MMM').format(transaction.date),
+                    style: AppTextStyles.micro,
                   ),
                 ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

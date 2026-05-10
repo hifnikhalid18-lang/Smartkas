@@ -35,7 +35,7 @@ class SavingsGoalCard extends StatelessWidget {
                   color: colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(goal.icon, color: colorScheme.primary, size: 20),
+                child: Icon(Icons.savings_outlined, color: colorScheme.primary, size: 20),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -43,9 +43,9 @@ class SavingsGoalCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(goal.title, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold)),
-                    if (goal.deadline != null)
+                    if (goal.targetDate != null)
                       Text(
-                        'Deadline: ${goal.deadline.toString().split(' ')[0]}',
+                        'Target: ${goal.targetDate.toString().split(' ')[0]}',
                         style: AppTextStyles.caption,
                       ),
                   ],

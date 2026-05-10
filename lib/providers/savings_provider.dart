@@ -22,31 +22,39 @@ class SavingsProvider extends ChangeNotifier {
   }
 
   Future<void> addGoal(SavingsGoalModel goal) async {
-    _goals.add(goal);
+    _goals.insert(0, goal);
     await StorageService.saveSavingsGoals(_goals);
     notifyListeners();
   }
 
-  Future<void> updateGoal(SavingsGoalModel goal) async {
-    final index = _goals.indexWhere((g) => g.id == goal.id);
+  Future<void> updateGoal(SavingsGoalModel updatedGoal) async {
+    final index = _goals.indexWhere((g) => g.id == updatedGoal.id);
     if (index != -1) {
-      _goals[index] = goal;
+      _goals[index] = updatedGoal;
       await StorageService.saveSavingsGoals(_goals);
       notifyListeners();
     }
   }
 
-  Future<void> addFunds(String goalId, double amount) async {
-    final index = _goals.indexWhere((g) => g.id == goalId);
+  Future<void> addDeposit(String id, double amount) async {
+    final index = _goals.indexWhere((g) => g.id == id);
     if (index != -1) {
-      _goals[index].currentAmount += amount;
+      final updated = _goals[index].copyWith(
+        currentAmount: _goals[index].currentAmount + amount,
+      );
+      // Check if completed
+      if (updated.currentAmount >= updated.targetAmount) {
+        _goals[index] = updated.copyWith(isCompleted: true);
+      } else {
+        _goals[index] = updated;
+      }
       await StorageService.saveSavingsGoals(_goals);
       notifyListeners();
     }
   }
 
-  Future<void> deleteGoal(String goalId) async {
-    _goals.removeWhere((g) => g.id == goalId);
+  Future<void> deleteGoal(String id) async {
+    _goals.removeWhere((g) => g.id == id);
     await StorageService.saveSavingsGoals(_goals);
     notifyListeners();
   }
