@@ -229,7 +229,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       child: IconButton(
         icon: const Icon(Icons.calendar_month_rounded, color: AppColors.accent),
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih tanggal dari kalender...')));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih tanggal dari Kalender Transaksi...')));
         },
       ),
     );

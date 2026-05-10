@@ -259,14 +259,14 @@ class _InputScreenState extends State<InputScreen> {
               ),
               const SizedBox(height: AppSpacing.lg),
 
-              _buildSectionTitle('KETERANGAN'),
+              _buildSectionTitle('CATATAN'),
               const SizedBox(height: AppSpacing.sm),
               TextField(
                 controller: _keteranganController,
                 maxLines: 2,
                 style: AppTextStyles.body,
                 decoration: InputDecoration(
-                  hintText: 'Contoh: Beli Makan Siang',
+                  hintText: 'Contoh: Makan Siang di Warung',
                   filled: true,
                   fillColor: AppColors.surface,
                   errorText: _keteranganError,

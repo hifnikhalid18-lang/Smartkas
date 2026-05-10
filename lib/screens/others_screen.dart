@@ -85,8 +85,8 @@ class OthersScreen extends StatelessWidget {
             ),
             _buildMenuCard(
               context,
-              title: 'Tentang Aplikasi',
-              subtitle: 'Versi & Informasi Smartkas',
+              title: 'Tentang Smartkas',
+              subtitle: 'Versi & Informasi Aplikasi',
               icon: Icons.info_outline_rounded,
               color: Colors.blue,
               onTap: () => _showAbout(context),
